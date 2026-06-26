@@ -1,0 +1,4 @@
+tmp-chrome-profile/
+verification-*.png
+server.*.log
+.DS_Store
