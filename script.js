@@ -8,10 +8,10 @@
   ];
   const TIMING = {
     cloud: 5000,
-    resolve: 2000,
+    resolve: 500,
     formed: 5000,
-    dissolve: 2000,
-    stagger: 420
+    dissolve: 500,
+    stagger: 80
   };
   TIMING.total = TIMING.cloud + TIMING.resolve + TIMING.formed + TIMING.dissolve;
 
@@ -136,10 +136,12 @@
     const sample = document.createElement("canvas");
     const sampleCtx = sample.getContext("2d", { willReadFrequently: true });
     const aspect = logo.naturalWidth / logo.naturalHeight || 4;
-    const logoWidth = Math.min(width * 0.78, 1080);
+    const logoWidth = Math.min(width * 0.56, 760);
     const logoHeight = logoWidth / aspect;
-    const left = (width - logoWidth) * 0.5;
-    const top = height * 0.43 - logoHeight * 0.5;
+    const marginX = clamp(width * 0.055, 42, 96);
+    const marginY = clamp(height * 0.105, 52, 112);
+    const left = Math.max(width * 0.08, width - logoWidth - marginX);
+    const top = Math.max(height * 0.52, height - logoHeight - marginY);
 
     sample.width = Math.max(1, Math.ceil(logoWidth));
     sample.height = Math.max(1, Math.ceil(logoHeight));
@@ -333,23 +335,25 @@
       );
       const targetDx = activeTargetX - particle.x;
       const targetDy = activeTargetY - particle.y;
-      const attraction = lerp(0.026, 0.04, form);
+      const travel = Math.sin(form * Math.PI);
+      const attraction = lerp(0.035, 0.06, form) + travel * 0.16;
       const turbulence = reducedMotion ? 0.01 : lerp(0.08, 0.02, form);
       const micro = Math.sin(now * 0.0006 + particle.seed) * 0.002;
 
       particle.vx += field.x * turbulence * dt + targetDx * attraction + mouse.pushX + micro;
       particle.vy += field.y * turbulence * dt + targetDy * attraction + mouse.pushY - micro;
-      particle.vx *= lerp(0.9, 0.84, form);
-      particle.vy *= lerp(0.9, 0.84, form);
-      const maxVelocity = lerp(1.15, 2.05, form);
+      const damping = Math.min(0.94, lerp(0.88, 0.83, form) + travel * 0.06);
+      particle.vx *= damping;
+      particle.vy *= damping;
+      const maxVelocity = lerp(1.15, 2.05, form) + travel * 34;
       const velocity = Math.hypot(particle.vx, particle.vy);
       if (velocity > maxVelocity) {
         const velocityScale = maxVelocity / velocity;
         particle.vx *= velocityScale;
         particle.vy *= velocityScale;
       }
-      particle.x += particle.vx * lerp(32, 28, form) * dt;
-      particle.y += particle.vy * lerp(28, 25, form) * dt;
+      particle.x += particle.vx * (lerp(34, 30, form) + travel * 8) * dt;
+      particle.y += particle.vy * (lerp(30, 27, form) + travel * 8) * dt;
 
       if (particle.x < -30) particle.x = width + 30;
       if (particle.x > width + 30) particle.x = -30;
