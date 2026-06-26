@@ -306,30 +306,48 @@
       const field = curlField(particle.x, particle.y, now, particle.seed);
       const mouse = pointerInfluence(particle);
       const form = clamp(cycleForm(now, particle) - mouse.disrupt, 0, 1);
+      const cloudCenterX = width * 0.72;
+      const cloudCenterY = height * 0.29;
+      const idleRotation = now * 0.000035 * (1 - form);
+      const cloudDx = particle.cloudX - cloudCenterX;
+      const cloudDy = particle.cloudY - cloudCenterY;
+      const rotationCos = Math.cos(idleRotation);
+      const rotationSin = Math.sin(idleRotation);
+      const rotatedCloudX =
+        cloudCenterX + cloudDx * rotationCos - cloudDy * rotationSin;
+      const rotatedCloudY =
+        cloudCenterY + cloudDx * rotationSin + cloudDy * rotationCos;
       const cloudWobbleX =
-        Math.sin(now * 0.00026 + particle.seed) * lerp(5, 2, form);
+        Math.sin(now * 0.0002 + particle.seed) * lerp(3, 2, form);
       const cloudWobbleY =
-        Math.cos(now * 0.00022 + particle.seed * 1.7) * lerp(4, 2, form);
+        Math.cos(now * 0.00018 + particle.seed * 1.7) * lerp(3, 2, form);
       const activeTargetX = lerp(
-        particle.cloudX + cloudWobbleX,
+        rotatedCloudX + cloudWobbleX,
         particle.targetX,
         form
       );
       const activeTargetY = lerp(
-        particle.cloudY + cloudWobbleY,
+        rotatedCloudY + cloudWobbleY,
         particle.targetY,
         form
       );
       const targetDx = activeTargetX - particle.x;
       const targetDy = activeTargetY - particle.y;
       const attraction = lerp(0.026, 0.04, form);
-      const turbulence = reducedMotion ? 0.01 : lerp(0.12, 0.025, form);
-      const micro = Math.sin(now * 0.0008 + particle.seed) * 0.004;
+      const turbulence = reducedMotion ? 0.01 : lerp(0.08, 0.02, form);
+      const micro = Math.sin(now * 0.0006 + particle.seed) * 0.002;
 
       particle.vx += field.x * turbulence * dt + targetDx * attraction + mouse.pushX + micro;
       particle.vy += field.y * turbulence * dt + targetDy * attraction + mouse.pushY - micro;
       particle.vx *= lerp(0.9, 0.84, form);
       particle.vy *= lerp(0.9, 0.84, form);
+      const maxVelocity = lerp(1.15, 2.05, form);
+      const velocity = Math.hypot(particle.vx, particle.vy);
+      if (velocity > maxVelocity) {
+        const velocityScale = maxVelocity / velocity;
+        particle.vx *= velocityScale;
+        particle.vy *= velocityScale;
+      }
       particle.x += particle.vx * lerp(32, 28, form) * dt;
       particle.y += particle.vy * lerp(28, 25, form) * dt;
 
