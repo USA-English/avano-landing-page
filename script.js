@@ -1,10 +1,11 @@
 (() => {
+  const LOGO_PATH = "./uploads/avano-logo.svg";
   const canvas = document.getElementById("avano-field");
   const ctx = canvas.getContext("2d", { alpha: true });
   const logo = new Image();
   const particleCount = 11000;
-  const bg = { r: 248, g: 247, b: 244 };
-  const colors = [
+  const background = { r: 248, g: 247, b: 244 };
+  const brandColors = [
     { hex: "#11325b", r: 17, g: 50, b: 91 },
     { hex: "#b38a49", r: 179, g: 138, b: 73 }
   ];
@@ -15,6 +16,7 @@
   let height = 0;
   let dpr = 1;
   let targets = [];
+  let logoReady = false;
   let lastTime = performance.now();
 
   const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -26,22 +28,38 @@
   };
 
   function colorDistance(pixel, color) {
-    const dr = pixel.r - color.r;
-    const dg = pixel.g - color.g;
-    const db = pixel.b - color.b;
-    return dr * dr + dg * dg + db * db;
+    return (pixel.r - color.r) ** 2 + (pixel.g - color.g) ** 2 + (pixel.b - color.b) ** 2;
   }
 
   function nearestBrandColor(pixel) {
-    return colorDistance(pixel, colors[0]) <= colorDistance(pixel, colors[1]) ? 0 : 1;
+    return colorDistance(pixel, brandColors[0]) <= colorDistance(pixel, brandColors[1]) ? 0 : 1;
   }
 
-  function visibleLogoPixel(pixel) {
-    return pixel.a > 38 && colorDistance(pixel, bg) > 780;
+  function isLogoPixel(pixel) {
+    return pixel.a > 28 && colorDistance(pixel, background) > 620;
+  }
+
+  function createDriftParticles() {
+    for (let i = 0; i < particleCount; i += 1) {
+      if (!particles[i]) {
+        particles[i] = {
+          x: Math.random() * width,
+          y: Math.random() * height,
+          vx: (Math.random() - 0.5) * 0.6,
+          vy: (Math.random() - 0.5) * 0.6,
+          targetX: Math.random() * width,
+          targetY: Math.random() * height,
+          color: i % 2,
+          seed: Math.random() * 1000,
+          size: lerp(0.72, 1.85, Math.random()),
+          delay: Math.random(),
+          phase: Math.random()
+        };
+      }
+    }
   }
 
   function pickTargets(pool) {
-    if (!pool.length) return [];
     const picked = [];
     const stride = Math.max(1, Math.floor(pool.length / particleCount));
     let cursor = Math.floor(Math.random() * stride);
@@ -52,90 +70,47 @@
     return picked;
   }
 
-  function fallbackTargets() {
-    const sample = document.createElement("canvas");
-    const sampleCtx = sample.getContext("2d");
-    const logoWidth = Math.min(width * 0.76, 1040);
-    const logoHeight = logoWidth / 4.08;
-    const left = (width - logoWidth) * 0.5;
-    const top = height * 0.43 - logoHeight * 0.5;
-    sample.width = Math.ceil(logoWidth);
-    sample.height = Math.ceil(logoHeight);
-    sampleCtx.fillStyle = "#000";
-    sampleCtx.font = `900 ${Math.floor(logoHeight * 0.86)}px Arial, sans-serif`;
-    sampleCtx.textAlign = "center";
-    sampleCtx.textBaseline = "middle";
-    sampleCtx.fillText("AVANO", sample.width * 0.5, sample.height * 0.52);
-    const data = sampleCtx.getImageData(0, 0, sample.width, sample.height).data;
-    const pool = [];
-    for (let y = 0; y < sample.height; y += 1) {
-      for (let x = 0; x < sample.width; x += 1) {
-        if (data[(y * sample.width + x) * 4 + 3] > 60) {
-          pool.push({ x: left + x, y: top + y, color: x < sample.width * 0.78 ? 0 : 1 });
-        }
-      }
-    }
-    return pickTargets(pool);
-  }
-
   function assignTargets() {
-    if (!targets.length) targets = fallbackTargets();
-    if (!targets.length) {
-      targets = Array.from({ length: particleCount }, (_, i) => ({
-        x: width * 0.5 + Math.cos(i) * width * 0.18,
-        y: height * 0.43 + Math.sin(i * 1.7) * height * 0.08,
-        color: i % 2
-      }));
-    }
+    if (!targets.length) return;
     for (let i = 0; i < particleCount; i += 1) {
       const target = targets[i % targets.length];
-      if (!particles[i]) {
-        particles[i] = {
-          x: Math.random() * width,
-          y: Math.random() * height,
-          vx: (Math.random() - 0.5) * 0.6,
-          vy: (Math.random() - 0.5) * 0.6,
-          targetX: target.x,
-          targetY: target.y,
-          color: target.color,
-          seed: Math.random() * 1000,
-          size: lerp(0.72, 1.85, Math.random()),
-          delay: Math.random(),
-          phase: Math.random()
-        };
-      } else {
-        particles[i].targetX = target.x;
-        particles[i].targetY = target.y;
-        particles[i].color = target.color;
-      }
+      if (!particles[i]) createDriftParticles();
+      particles[i].targetX = target.x;
+      particles[i].targetY = target.y;
+      particles[i].color = target.color;
     }
   }
 
   function sampleLogoTargets() {
-    if (!width || !height || !logo.complete) return;
+    if (!width || !height || !logo.complete || !logo.naturalWidth) return;
+
     const sample = document.createElement("canvas");
     const sampleCtx = sample.getContext("2d", { willReadFrequently: true });
+    const aspect = logo.naturalWidth / logo.naturalHeight || 4;
     const logoWidth = Math.min(width * 0.78, 1080);
-    const logoHeight = logoWidth / 4;
+    const logoHeight = logoWidth / aspect;
     const left = (width - logoWidth) * 0.5;
     const top = height * 0.43 - logoHeight * 0.5;
+
     sample.width = Math.max(1, Math.ceil(logoWidth));
     sample.height = Math.max(1, Math.ceil(logoHeight));
+    sampleCtx.clearRect(0, 0, sample.width, sample.height);
     sampleCtx.drawImage(logo, 0, 0, sample.width, sample.height);
-    let data;
+
+    let imageData;
     try {
-      data = sampleCtx.getImageData(0, 0, sample.width, sample.height).data;
-    } catch {
-      targets = fallbackTargets();
-      assignTargets();
+      imageData = sampleCtx.getImageData(0, 0, sample.width, sample.height).data;
+    } catch (error) {
+      console.error("AVANO logo could not be sampled. The particle field requires a same-origin SVG or image.", error);
       return;
     }
+
     const pool = [];
     for (let y = 0; y < sample.height; y += 1) {
       for (let x = 0; x < sample.width; x += 1) {
         const index = (y * sample.width + x) * 4;
-        const pixel = { r: data[index], g: data[index + 1], b: data[index + 2], a: data[index + 3] };
-        if (visibleLogoPixel(pixel)) {
+        const pixel = { r: imageData[index], g: imageData[index + 1], b: imageData[index + 2], a: imageData[index + 3] };
+        if (isLogoPixel(pixel)) {
           pool.push({
             x: left + x + (Math.random() - 0.5) * 0.45,
             y: top + y + (Math.random() - 0.5) * 0.45,
@@ -144,7 +119,16 @@
         }
       }
     }
-    targets = pool.length > 400 ? pickTargets(pool) : fallbackTargets();
+
+    if (pool.length < 400) {
+      console.error(`AVANO logo sampling found only ${pool.length} visible pixels. Check uploads/avano-logo.svg.`);
+      targets = [];
+      logoReady = false;
+      return;
+    }
+
+    targets = pickTargets(pool);
+    logoReady = true;
     assignTargets();
   }
 
@@ -157,6 +141,7 @@
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    createDriftParticles();
     sampleLogoTargets();
   }
 
@@ -178,6 +163,7 @@
   }
 
   function cycleForm(time, particle) {
+    if (!logoReady) return 0;
     if (reducedMotion) return 1;
     const duration = 14500;
     const phase = ((time + particle.delay * 1200) % duration) / duration;
@@ -265,7 +251,7 @@
       if (particle.y > height + 30) particle.y = -30;
 
       ctx.globalAlpha = lerp(0.28, 0.92, form) * lerp(0.72, 1, particle.phase);
-      ctx.fillStyle = colors[particle.color].hex;
+      ctx.fillStyle = brandColors[particle.color].hex;
       ctx.beginPath();
       ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
       ctx.fill();
@@ -282,8 +268,11 @@
   }
 
   logo.onload = start;
-  logo.onerror = start;
-  logo.src = "./assets/avano-animation-svg.svg";
+  logo.onerror = () => {
+    console.error(`Missing AVANO logo target: ${LOGO_PATH}. Upload the exact SVG to uploads/avano-logo.svg.`);
+    start();
+  };
+  logo.src = LOGO_PATH;
   window.addEventListener("resize", resize, { passive: true });
   window.addEventListener("pointermove", addPointerEvent, { passive: true });
   window.addEventListener("pointerdown", addPointerEvent, { passive: true });
