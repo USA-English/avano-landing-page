@@ -27,6 +27,7 @@
   let dpr = 1;
   let targets = [];
   let logoReady = false;
+  let cloudSpawned = false;
   let lastTime = performance.now();
 
   const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -57,14 +58,14 @@
     for (let i = 0; i < PARTICLE_COUNT; i += 1) {
       if (particles[i]) continue;
       particles[i] = {
-        x: Math.random() * width,
-        y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.75,
-        vy: (Math.random() - 0.5) * 0.75,
+        x: width * 0.72,
+        y: height * 0.29,
+        vx: 0,
+        vy: 0,
         targetX: Math.random() * width,
         targetY: Math.random() * height,
-        cloudX: Math.random() * width,
-        cloudY: Math.random() * height,
+        cloudX: width * 0.72,
+        cloudY: height * 0.29,
         cloudAngle: Math.random() * Math.PI * 2,
         cloudRadius: Math.sqrt(Math.random()),
         cloudSkew: Math.random(),
@@ -95,6 +96,16 @@
 
       particle.cloudX = centerX + Math.cos(angle) * radiusX * density + skew;
       particle.cloudY = centerY + Math.sin(angle) * radiusY * density * upperLift;
+    }
+
+    if (!cloudSpawned) {
+      for (const particle of particles) {
+        particle.x = particle.cloudX + (Math.random() - 0.5) * 18;
+        particle.y = particle.cloudY + (Math.random() - 0.5) * 18;
+        particle.vx = (Math.random() - 0.5) * 0.08;
+        particle.vy = (Math.random() - 0.5) * 0.08;
+      }
+      cloudSpawned = true;
     }
   }
 
@@ -199,7 +210,7 @@
     const a = 0.0085;
     const b = 0.0105;
     const c = 0.0045;
-    const t = time * 0.00042;
+    const t = time * 0.00028;
     const sx = x + seed * 19.7;
     const sy = y - seed * 11.3;
     const p1x = sx * a + t * 2.3;
@@ -207,8 +218,8 @@
     const p2x = sx * c - t * 1.2 + seed;
     const p2y = sy * c + t * 2.6 - seed * 0.7;
     return {
-      x: (-b * Math.sin(p1x) * Math.sin(p1y) + c * Math.cos(p2x) * Math.cos(p2y)) * 92,
-      y: -(a * Math.cos(p1x) * Math.cos(p1y) - c * Math.sin(p2x) * Math.sin(p2y)) * 92
+      x: (-b * Math.sin(p1x) * Math.sin(p1y) + c * Math.cos(p2x) * Math.cos(p2y)) * 34,
+      y: -(a * Math.cos(p1x) * Math.cos(p1y) - c * Math.sin(p2x) * Math.sin(p2y)) * 34
     };
   }
 
@@ -243,24 +254,24 @@
       const dy = particle.y - point.y;
       const distSq = dx * dx + dy * dy;
       const energy = clamp(point.speed / 48, 0, 1);
-      const radius = lerp(92, 230, energy) * point.life;
+      const radius = lerp(80, 180, energy) * point.life;
       if (distSq >= radius * radius || radius <= 0) continue;
 
       const dist = Math.sqrt(distSq) || 1;
       const influence = clamp(1 - dist / radius, 0, 1) ** 2 * point.life;
       const nx = dx / dist;
       const ny = dy / dist;
-      const tangent = point.spin * influence * lerp(0.34, 2.2, energy);
-      pushX += nx * influence * lerp(0.7, 3.1, energy) - ny * tangent + point.vx * influence * 0.014;
-      pushY += ny * influence * lerp(0.7, 3.1, energy) + nx * tangent + point.vy * influence * 0.014;
-      disrupt = Math.max(disrupt, influence * lerp(0.42, 0.88, energy));
+      const tangent = point.spin * influence * lerp(0.16, 0.75, energy);
+      pushX += nx * influence * lerp(0.22, 1.05, energy) - ny * tangent + point.vx * influence * 0.006;
+      pushY += ny * influence * lerp(0.22, 1.05, energy) + nx * tangent + point.vy * influence * 0.006;
+      disrupt = Math.max(disrupt, influence * lerp(0.2, 0.55, energy));
     }
     return { pushX, pushY, disrupt };
   }
 
   function updateTrail(dt) {
     for (let i = pointer.trail.length - 1; i >= 0; i -= 1) {
-      pointer.trail[i].life -= dt * 1.55;
+      pointer.trail[i].life -= dt * 1.85;
       if (pointer.trail[i].life <= 0) pointer.trail.splice(i, 1);
     }
   }
@@ -282,7 +293,7 @@
       spin: vx * vy >= 0 ? 1 : -1,
       life: 1
     });
-    if (pointer.trail.length > 18) pointer.trail.shift();
+    if (pointer.trail.length > 12) pointer.trail.shift();
   }
 
   function step(now) {
@@ -296,9 +307,9 @@
       const mouse = pointerInfluence(particle);
       const form = clamp(cycleForm(now, particle) - mouse.disrupt, 0, 1);
       const cloudWobbleX =
-        Math.sin(now * 0.00042 + particle.seed) * lerp(14, 4, form);
+        Math.sin(now * 0.00026 + particle.seed) * lerp(5, 2, form);
       const cloudWobbleY =
-        Math.cos(now * 0.00036 + particle.seed * 1.7) * lerp(12, 3, form);
+        Math.cos(now * 0.00022 + particle.seed * 1.7) * lerp(4, 2, form);
       const activeTargetX = lerp(
         particle.cloudX + cloudWobbleX,
         particle.targetX,
@@ -311,16 +322,16 @@
       );
       const targetDx = activeTargetX - particle.x;
       const targetDy = activeTargetY - particle.y;
-      const attraction = lerp(0.018, 0.047, form);
-      const turbulence = reducedMotion ? 0.02 : lerp(0.44, 0.06, form);
-      const micro = Math.sin(now * 0.0015 + particle.seed) * 0.016;
+      const attraction = lerp(0.026, 0.04, form);
+      const turbulence = reducedMotion ? 0.01 : lerp(0.12, 0.025, form);
+      const micro = Math.sin(now * 0.0008 + particle.seed) * 0.004;
 
       particle.vx += field.x * turbulence * dt + targetDx * attraction + mouse.pushX + micro;
       particle.vy += field.y * turbulence * dt + targetDy * attraction + mouse.pushY - micro;
-      particle.vx *= lerp(0.988, 0.82, form);
-      particle.vy *= lerp(0.988, 0.82, form);
-      particle.x += particle.vx * lerp(54, 38, form) * dt;
-      particle.y += particle.vy * lerp(46, 34, form) * dt;
+      particle.vx *= lerp(0.9, 0.84, form);
+      particle.vy *= lerp(0.9, 0.84, form);
+      particle.x += particle.vx * lerp(32, 28, form) * dt;
+      particle.y += particle.vy * lerp(28, 25, form) * dt;
 
       if (particle.x < -30) particle.x = width + 30;
       if (particle.x > width + 30) particle.x = -30;
