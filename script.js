@@ -63,12 +63,38 @@
         vy: (Math.random() - 0.5) * 0.75,
         targetX: Math.random() * width,
         targetY: Math.random() * height,
+        cloudX: Math.random() * width,
+        cloudY: Math.random() * height,
+        cloudAngle: Math.random() * Math.PI * 2,
+        cloudRadius: Math.sqrt(Math.random()),
+        cloudSkew: Math.random(),
         color: i % 2,
         seed: Math.random() * 1000,
         size: lerp(0.72, 1.85, Math.random()),
         delay: Math.random(),
         phase: Math.random()
       };
+    }
+  }
+
+  function updateCloudTargets() {
+    const centerX = width * 0.72;
+    const centerY = height * 0.29;
+    const radiusX = Math.min(width * 0.29, 430);
+    const radiusY = Math.min(height * 0.31, 300);
+
+    for (const particle of particles) {
+      const angle = particle.cloudAngle;
+      const organicEdge =
+        0.9 +
+        Math.sin(angle * 2.4 + particle.seed) * 0.16 +
+        Math.sin(angle * 5.1 - particle.seed * 0.37) * 0.12;
+      const density = particle.cloudRadius * organicEdge;
+      const upperLift = Math.sin(angle - 0.65) > 0 ? 0.9 : 1.08;
+      const skew = (particle.cloudSkew - 0.5) * radiusX * 0.14 * density;
+
+      particle.cloudX = centerX + Math.cos(angle) * radiusX * density + skew;
+      particle.cloudY = centerY + Math.sin(angle) * radiusY * density * upperLift;
     }
   }
 
@@ -165,6 +191,7 @@
     canvas.style.height = `${height}px`;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     createParticles();
+    updateCloudTargets();
     sampleLogoTargets();
   }
 
@@ -268,11 +295,25 @@
       const field = curlField(particle.x, particle.y, now, particle.seed);
       const mouse = pointerInfluence(particle);
       const form = clamp(cycleForm(now, particle) - mouse.disrupt, 0, 1);
-      const targetDx = particle.targetX - particle.x;
-      const targetDy = particle.targetY - particle.y;
-      const attraction = form * 0.047;
-      const turbulence = reducedMotion ? 0.02 : lerp(0.72, 0.06, form);
-      const micro = Math.sin(now * 0.0015 + particle.seed) * 0.016 * form;
+      const cloudWobbleX =
+        Math.sin(now * 0.00042 + particle.seed) * lerp(14, 4, form);
+      const cloudWobbleY =
+        Math.cos(now * 0.00036 + particle.seed * 1.7) * lerp(12, 3, form);
+      const activeTargetX = lerp(
+        particle.cloudX + cloudWobbleX,
+        particle.targetX,
+        form
+      );
+      const activeTargetY = lerp(
+        particle.cloudY + cloudWobbleY,
+        particle.targetY,
+        form
+      );
+      const targetDx = activeTargetX - particle.x;
+      const targetDy = activeTargetY - particle.y;
+      const attraction = lerp(0.018, 0.047, form);
+      const turbulence = reducedMotion ? 0.02 : lerp(0.44, 0.06, form);
+      const micro = Math.sin(now * 0.0015 + particle.seed) * 0.016;
 
       particle.vx += field.x * turbulence * dt + targetDx * attraction + mouse.pushX + micro;
       particle.vy += field.y * turbulence * dt + targetDy * attraction + mouse.pushY - micro;
