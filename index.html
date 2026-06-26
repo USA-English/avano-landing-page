@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="AVANO landing page prototype with an interactive particle wordmark hero." />
+    <title>AVANO</title>
+    <link rel="preload" href="./assets/avano-animation-svg.svg" as="image" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main>
+      <section class="hero" aria-label="AVANO">
+        <canvas id="avano-field" aria-hidden="true"></canvas>
+        <div class="hero__frame">
+          <header class="site-header" aria-label="Primary">
+            <a class="site-header__brand" href="#" aria-label="AVANO home">AVANO</a>
+            <a class="site-header__link" href="#next">Explore</a>
+          </header>
+          <div class="hero__copy" aria-hidden="true"></div>
+          <a class="scroll-cue" href="#next" aria-label="Scroll to content"><span></span></a>
+        </div>
+      </section>
+
+      <section id="next" class="content-section">
+        <div class="content-section__inner">
+          <p class="eyebrow">Coming next</p>
+          <h1>Build the rest of the AVANO story below the field.</h1>
+          <p>This first iteration keeps the opening viewport focused on the living wordmark, with space below ready for the landing page content once the motion is nailed down.</p>
+        </div>
+      </section>
+
+      <section class="content-section content-section--muted">
+        <div class="content-section__inner">
+          <p class="eyebrow">System</p>
+          <h2>Light, responsive, and ready for Vercel.</h2>
+          <p>The prototype is static, so it can deploy as-is. It can also be moved into Next.js later as a hero component.</p>
+        </div>
+      </section>
+    </main>
+
+    <script src="./script.js" defer></script>
+  </body>
+</html>
