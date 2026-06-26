@@ -1,5 +1,5 @@
 (() => {
-  const LOGO_PATH = "./uploads/avano-logo.svg";
+  const LOGO_PATH = "./uploads/avano-animation-svg.svg";
   const canvas = document.getElementById("avano-field");
   const ctx = canvas.getContext("2d", { alpha: true });
   const logo = new Image();
@@ -121,7 +121,7 @@
     }
 
     if (pool.length < 400) {
-      console.error(`AVANO logo sampling found only ${pool.length} visible pixels. Check uploads/avano-logo.svg.`);
+      console.error(`AVANO logo sampling found only ${pool.length} visible pixels. Check uploads/avano-animation-svg.svg.`);
       targets = [];
       logoReady = false;
       return;
@@ -269,7 +269,7 @@
 
   logo.onload = start;
   logo.onerror = () => {
-    console.error(`Missing AVANO logo target: ${LOGO_PATH}. Upload the exact SVG to uploads/avano-logo.svg.`);
+    console.error(`Missing AVANO logo target: ${LOGO_PATH}. Upload the exact SVG to uploads/avano-animation-svg.svg.`);
     start();
   };
   logo.src = LOGO_PATH;
