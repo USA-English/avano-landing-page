@@ -324,7 +324,7 @@
     const logoHeight = logoWidth / aspect;
     const marginX = clamp(width * 0.055, 42, 96);
     const marginY = clamp(height * 0.105, 52, 112);
-    const left = Math.max(width * 0.08, width - logoWidth - marginX);
+    const left = marginX;
     const top = Math.max(height * 0.52, height - logoHeight - marginY);
 
     sample.width = Math.max(1, Math.ceil(logoWidth));
