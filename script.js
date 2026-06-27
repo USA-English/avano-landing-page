@@ -28,13 +28,17 @@
     uniform vec2 uPointer;
     uniform float uTime;
     uniform float uDpr;
-    uniform float uPointerStrength;
+    uniform float uPointerPresence;
+    uniform float uPointerEnergy;
+    uniform float uPointerCoreRadius;
+    uniform float uPointerFieldRadius;
     uniform float uReducedMotion;
 
     varying vec3 vColor;
     varying float vAlpha;
     varying float vDepth;
     varying float vPulse;
+    varying float vHole;
 
     float easeCubic(float t) {
       return t < 0.5
@@ -107,25 +111,34 @@
 
       vec2 pointerDelta = position - uPointer;
       float pointerDistance = length(pointerDelta);
-      float pointerRadius = mix(120.0, 245.0, uPointerStrength);
-      float pointerInfluence = smoothstep(pointerRadius, 0.0, pointerDistance) * uPointerStrength;
       vec2 pointerDirection = pointerDistance > 0.01 ? pointerDelta / pointerDistance : vec2(0.0, 0.0);
       vec2 pointerTangent = vec2(-pointerDirection.y, pointerDirection.x);
-      position += (pointerDirection * 12.0 + pointerTangent * 18.0) * pointerInfluence * (0.45 + depth * 0.85);
+      float coreHole = smoothstep(uPointerCoreRadius, 0.0, pointerDistance);
+      float fieldWarp = smoothstep(uPointerFieldRadius, 0.0, pointerDistance);
+      float swirlRing =
+        smoothstep(uPointerCoreRadius * 0.45, uPointerCoreRadius, pointerDistance) *
+        (1.0 - smoothstep(uPointerCoreRadius * 1.15, uPointerFieldRadius, pointerDistance));
+      float depthResponse = 0.72 + depth * 0.7;
+      float persistentPush = coreHole * 90.0 + fieldWarp * 42.0;
+      float movingSwirl = swirlRing * (28.0 + uPointerEnergy * 34.0);
+      position += pointerDirection * persistentPush * uPointerPresence * depthResponse;
+      position += pointerTangent * movingSwirl * uPointerPresence * (0.62 + depth * 0.72);
 
       float breathingPulse = 0.5 + 0.5 * sin(time * 0.85 + seed);
       float depthFade = mix(0.48, 1.0, depth);
       float stateAlpha = mix(0.46, 0.9, form);
       float travelAlpha = 1.0 + travel * 0.16;
+      float holeFade = clamp(coreHole * 0.88 + fieldWarp * 0.2, 0.0, 0.92) * uPointerPresence;
 
       vec2 clip = (position / uResolution) * 2.0 - 1.0;
       gl_Position = vec4(clip.x, -clip.y, 0.0, 1.0);
       gl_PointSize = size * uDpr * (1.15 + depth * 1.55 + breathingPulse * 0.2 + travel * 0.4);
 
       vColor = aColor;
-      vAlpha = depthFade * stateAlpha * travelAlpha;
+      vAlpha = depthFade * stateAlpha * travelAlpha * (1.0 - holeFade * 0.72);
       vDepth = depth;
       vPulse = breathingPulse;
+      vHole = holeFade;
     }
   `;
 
@@ -136,13 +149,14 @@
     varying float vAlpha;
     varying float vDepth;
     varying float vPulse;
+    varying float vHole;
 
     void main() {
       vec2 point = gl_PointCoord - vec2(0.5);
       float distanceFromCenter = length(point);
       float softDisc = smoothstep(0.5, 0.17, distanceFromCenter);
       float core = smoothstep(0.22, 0.0, distanceFromCenter);
-      float alpha = (softDisc * 0.68 + core * 0.28) * vAlpha;
+      float alpha = (softDisc * 0.68 + core * 0.28) * vAlpha * (1.0 - vHole * 0.32);
 
       if (alpha < 0.012) {
         discard;
@@ -180,7 +194,9 @@
     y: -10000,
     previousX: -10000,
     previousY: -10000,
-    strength: 0
+    active: false,
+    presence: 0,
+    energy: 0
   };
 
   const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -413,7 +429,11 @@
   }
 
   function render(now) {
-    pointer.strength *= 0.93;
+    pointer.presence = lerp(pointer.presence, pointer.active ? 1 : 0, 0.12);
+    pointer.energy *= 0.9;
+
+    const pointerCoreRadius = clamp(Math.min(width, height) * 0.16, 120, 210);
+    const pointerFieldRadius = clamp(Math.min(width, height) * 0.28, 220, 380);
 
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.useProgram(program);
@@ -422,7 +442,10 @@
     gl.uniform2f(gl.getUniformLocation(program, "uPointer"), pointer.x, pointer.y);
     gl.uniform1f(gl.getUniformLocation(program, "uTime"), now);
     gl.uniform1f(gl.getUniformLocation(program, "uDpr"), dpr);
-    gl.uniform1f(gl.getUniformLocation(program, "uPointerStrength"), pointer.strength);
+    gl.uniform1f(gl.getUniformLocation(program, "uPointerPresence"), pointer.presence);
+    gl.uniform1f(gl.getUniformLocation(program, "uPointerEnergy"), pointer.energy);
+    gl.uniform1f(gl.getUniformLocation(program, "uPointerCoreRadius"), pointerCoreRadius);
+    gl.uniform1f(gl.getUniformLocation(program, "uPointerFieldRadius"), pointerFieldRadius);
     gl.uniform1f(gl.getUniformLocation(program, "uReducedMotion"), reducedMotion ? 1 : 0);
     gl.drawArrays(gl.POINTS, 0, PARTICLE_COUNT);
 
@@ -448,7 +471,17 @@
     pointer.previousY = hasPointer ? pointer.y : y;
     pointer.x = x;
     pointer.y = y;
-    pointer.strength = Math.max(pointer.strength, clamp(speed / 70, 0.12, 0.72));
+    pointer.active = true;
+    pointer.energy = Math.max(pointer.energy, clamp(speed / 80, 0, 1));
+  }
+
+  function activatePointer(event) {
+    trackPointer(event);
+    pointer.active = true;
+  }
+
+  function deactivatePointer() {
+    pointer.active = false;
   }
 
   if (!gl) {
@@ -486,6 +519,8 @@
   logo.src = LOGO_PATH;
 
   window.addEventListener("resize", resize, { passive: true });
-  window.addEventListener("pointermove", trackPointer, { passive: true });
-  window.addEventListener("pointerdown", trackPointer, { passive: true });
+  canvas.addEventListener("pointerenter", activatePointer, { passive: true });
+  canvas.addEventListener("pointerleave", deactivatePointer, { passive: true });
+  canvas.addEventListener("pointermove", trackPointer, { passive: true });
+  canvas.addEventListener("pointerdown", trackPointer, { passive: true });
 })();
