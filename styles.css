@@ -14,6 +14,7 @@ body {
   margin: 0;
   background: var(--background);
   color: var(--text);
+  cursor: url("./uploads/mouse-icon.svg") 8 8, auto;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
@@ -40,7 +41,7 @@ a { color: inherit; text-decoration: none; }
   inset: 0;
   width: 100%;
   height: 100%;
-  cursor: auto;
+  cursor: url("./uploads/mouse-icon.svg") 8 8, auto;
 }
 
 .hero__frame {
@@ -56,7 +57,7 @@ a { color: inherit; text-decoration: none; }
 .site-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   color: var(--navy);
   font-size: 0.78rem;
   font-weight: 700;
