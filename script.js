@@ -183,6 +183,8 @@
   });
   const logo = new Image();
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const customCursor = document.querySelector(".custom-cursor");
+  const hasFinePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
   let width = 0;
   let height = 0;
@@ -489,6 +491,28 @@
 
   function deactivatePointer() {
     pointer.active = false;
+  }
+
+  function moveCustomCursor(event) {
+    if (!customCursor || !hasFinePointer) {
+      return;
+    }
+
+    customCursor.style.transform = `translate3d(${event.clientX}px, ${event.clientY}px, 0) translate(-50%, -50%)`;
+    customCursor.classList.add("is-visible");
+  }
+
+  function hideCustomCursor() {
+    if (customCursor) {
+      customCursor.classList.remove("is-visible");
+    }
+  }
+
+  if (customCursor && hasFinePointer) {
+    window.addEventListener("pointermove", moveCustomCursor, { passive: true });
+    window.addEventListener("pointerdown", moveCustomCursor, { passive: true });
+    document.addEventListener("mouseleave", hideCustomCursor, { passive: true });
+    window.addEventListener("blur", hideCustomCursor);
   }
 
   if (!gl) {
