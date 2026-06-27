@@ -3,12 +3,17 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="AVANO landing page prototype with an interactive particle wordmark hero." />
+    <meta
+      name="description"
+      content="AVANO landing page prototype with an interactive particle wordmark hero."
+    />
     <title>AVANO</title>
     <link rel="preload" href="./uploads/avano-animation-svg.svg" as="image" />
+    <link rel="preload" href="./uploads/mouse-icon.svg" as="image" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
+    <div class="custom-cursor" aria-hidden="true"></div>
     <main>
       <section class="hero" aria-label="AVANO">
         <canvas id="avano-field" aria-hidden="true"></canvas>
@@ -17,7 +22,9 @@
             <a class="site-header__link" href="#next">Explore</a>
           </header>
           <div class="hero__copy" aria-hidden="true"></div>
-          <a class="scroll-cue" href="#next" aria-label="Scroll to content"><span></span></a>
+          <a class="scroll-cue" href="#next" aria-label="Scroll to content">
+            <span></span>
+          </a>
         </div>
       </section>
 
@@ -25,7 +32,11 @@
         <div class="content-section__inner">
           <p class="eyebrow">Coming next</p>
           <h1>Build the rest of the AVANO story below the field.</h1>
-          <p>This first iteration keeps the opening viewport focused on the living wordmark, with space below ready for the landing page content once the motion is nailed down.</p>
+          <p>
+            This first iteration keeps the opening viewport focused on the
+            living wordmark, with space below ready for the landing page content
+            once the motion is nailed down.
+          </p>
         </div>
       </section>
 
@@ -33,7 +44,10 @@
         <div class="content-section__inner">
           <p class="eyebrow">System</p>
           <h2>Light, responsive, and ready for Vercel.</h2>
-          <p>The prototype is static, so it can deploy as-is. It can also be moved into Next.js later as a hero component.</p>
+          <p>
+            The prototype is static, so it can deploy as-is. It can also be
+            moved into Next.js later as a hero component.
+          </p>
         </div>
       </section>
     </main>
