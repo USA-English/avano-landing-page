@@ -39,6 +39,7 @@
     varying float vDepth;
     varying float vPulse;
     varying float vHole;
+    varying float vSparkle;
 
     float easeCubic(float t) {
       return t < 0.5
@@ -100,7 +101,7 @@
       vec2 logoBreath = vec2(
         sin(time * 0.24 + seed * 0.93),
         cos(time * 0.2 + seed * 1.31)
-      ) * (0.55 + depth * 1.25) * form;
+      ) * (0.85 + depth * 1.7) * form;
 
       vec2 arcLift = vec2(
         sin(seed * 0.17) * 18.0,
@@ -125,8 +126,12 @@
       position += pointerTangent * movingSwirl * uPointerPresence * (0.62 + depth * 0.72);
 
       float breathingPulse = 0.5 + 0.5 * sin(time * 0.85 + seed);
-      float depthFade = mix(0.48, 1.0, depth);
-      float stateAlpha = mix(0.46, 0.9, form);
+      float sparkle =
+        (0.5 + 0.5 * sin(time * 1.45 + seed * 2.13)) *
+        (0.5 + 0.5 * sin(time * 0.67 + seed * 0.71));
+      sparkle = pow(sparkle, 2.4) * mix(0.42, 1.0, depth);
+      float depthFade = mix(0.54, 1.0, depth);
+      float stateAlpha = mix(0.46, 0.96, form);
       float travelAlpha = 1.0 + travel * 0.16;
       float holeFade = clamp(coreHole * 0.88 + fieldWarp * 0.2, 0.0, 0.92) * uPointerPresence;
 
@@ -135,10 +140,11 @@
       gl_PointSize = size * uDpr * (1.15 + depth * 1.55 + breathingPulse * 0.2 + travel * 0.4);
 
       vColor = aColor;
-      vAlpha = depthFade * stateAlpha * travelAlpha * (1.0 - holeFade * 0.72);
+      vAlpha = depthFade * stateAlpha * travelAlpha * (1.0 + sparkle * 0.18) * (1.0 - holeFade * 0.72);
       vDepth = depth;
       vPulse = breathingPulse;
       vHole = holeFade;
+      vSparkle = sparkle;
     }
   `;
 
@@ -150,6 +156,7 @@
     varying float vDepth;
     varying float vPulse;
     varying float vHole;
+    varying float vSparkle;
 
     void main() {
       vec2 point = gl_PointCoord - vec2(0.5);
@@ -162,7 +169,7 @@
         discard;
       }
 
-      vec3 color = vColor * (0.82 + vDepth * 0.22 + vPulse * 0.1);
+      vec3 color = vColor * (0.84 + vDepth * 0.22 + vPulse * 0.18 + vSparkle * 0.16);
       gl_FragColor = vec4(color, alpha);
     }
   `;
