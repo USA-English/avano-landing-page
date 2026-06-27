@@ -3,8 +3,8 @@
   const PARTICLE_COUNT = 11000;
   const BACKGROUND = { r: 248, g: 247, b: 244 };
   const BRAND_COLORS = [
-    { hex: "#11325b", r: 17, g: 50, b: 91 },
-    { hex: "#b38a49", r: 179, g: 138, b: 73 }
+    { hex: "#11325b", r: 17 / 255, g: 50 / 255, b: 91 / 255 },
+    { hex: "#b38a49", r: 179 / 255, g: 138 / 255, b: 73 / 255 }
   ];
   const TIMING = {
     cloud: 5000,
@@ -15,31 +15,182 @@
   };
   TIMING.total = TIMING.cloud + TIMING.resolve + TIMING.formed + TIMING.dissolve;
 
+  const VERTEX_SHADER = `
+    precision highp float;
+
+    attribute vec2 aCloud;
+    attribute vec2 aTarget;
+    attribute vec3 aColor;
+    attribute vec4 aMeta;
+
+    uniform vec2 uResolution;
+    uniform vec2 uCloudCenter;
+    uniform vec2 uPointer;
+    uniform float uTime;
+    uniform float uDpr;
+    uniform float uPointerStrength;
+    uniform float uReducedMotion;
+
+    varying vec3 vColor;
+    varying float vAlpha;
+    varying float vDepth;
+    varying float vPulse;
+
+    float easeCubic(float t) {
+      return t < 0.5
+        ? 4.0 * t * t * t
+        : 1.0 - pow(-2.0 * t + 2.0, 3.0) * 0.5;
+    }
+
+    float cycleForm(float delay) {
+      if (uReducedMotion > 0.5) {
+        return 1.0;
+      }
+
+      float phase = mod(uTime, ${TIMING.total.toFixed(1)});
+      float resolveStart = ${TIMING.cloud.toFixed(1)};
+      float formedStart = ${TIMING.cloud + TIMING.resolve}.0;
+      float dissolveStart = ${TIMING.cloud + TIMING.resolve + TIMING.formed}.0;
+      float transitionDuration = ${TIMING.resolve - TIMING.stagger}.0;
+
+      if (phase < resolveStart) {
+        return 0.0;
+      }
+
+      if (phase < formedStart) {
+        return easeCubic(clamp((phase - resolveStart - delay) / transitionDuration, 0.0, 1.0));
+      }
+
+      if (phase < dissolveStart) {
+        return 1.0;
+      }
+
+      return 1.0 - easeCubic(clamp((phase - dissolveStart - delay) / transitionDuration, 0.0, 1.0));
+    }
+
+    mat2 rotate2d(float angle) {
+      float s = sin(angle);
+      float c = cos(angle);
+      return mat2(c, -s, s, c);
+    }
+
+    void main() {
+      float size = aMeta.x;
+      float seed = aMeta.y;
+      float depth = aMeta.z;
+      float delay = aMeta.w;
+      float form = cycleForm(delay);
+      float cloudWeight = 1.0 - form;
+      float travel = sin(form * 3.14159265);
+      float time = uTime * 0.001;
+
+      vec2 cloudOffset = aCloud - uCloudCenter;
+      float cloudRotation = uTime * 0.000035 * cloudWeight;
+      vec2 rotatedCloud = uCloudCenter + rotate2d(cloudRotation) * cloudOffset;
+
+      vec2 cloudBreath = vec2(
+        sin(time * 0.42 + seed * 1.73),
+        cos(time * 0.36 + seed * 1.21)
+      ) * (2.0 + depth * 7.0) * cloudWeight;
+
+      vec2 logoBreath = vec2(
+        sin(time * 0.24 + seed * 0.93),
+        cos(time * 0.2 + seed * 1.31)
+      ) * (0.55 + depth * 1.25) * form;
+
+      vec2 arcLift = vec2(
+        sin(seed * 0.17) * 18.0,
+        -34.0 - depth * 26.0
+      ) * travel;
+
+      vec2 position = mix(rotatedCloud + cloudBreath, aTarget + logoBreath, form) + arcLift;
+
+      vec2 pointerDelta = position - uPointer;
+      float pointerDistance = length(pointerDelta);
+      float pointerRadius = mix(120.0, 245.0, uPointerStrength);
+      float pointerInfluence = smoothstep(pointerRadius, 0.0, pointerDistance) * uPointerStrength;
+      vec2 pointerDirection = pointerDistance > 0.01 ? pointerDelta / pointerDistance : vec2(0.0, 0.0);
+      vec2 pointerTangent = vec2(-pointerDirection.y, pointerDirection.x);
+      position += (pointerDirection * 12.0 + pointerTangent * 18.0) * pointerInfluence * (0.45 + depth * 0.85);
+
+      float breathingPulse = 0.5 + 0.5 * sin(time * 0.85 + seed);
+      float depthFade = mix(0.48, 1.0, depth);
+      float stateAlpha = mix(0.46, 0.9, form);
+      float travelAlpha = 1.0 + travel * 0.16;
+
+      vec2 clip = (position / uResolution) * 2.0 - 1.0;
+      gl_Position = vec4(clip.x, -clip.y, 0.0, 1.0);
+      gl_PointSize = size * uDpr * (1.15 + depth * 1.55 + breathingPulse * 0.2 + travel * 0.4);
+
+      vColor = aColor;
+      vAlpha = depthFade * stateAlpha * travelAlpha;
+      vDepth = depth;
+      vPulse = breathingPulse;
+    }
+  `;
+
+  const FRAGMENT_SHADER = `
+    precision mediump float;
+
+    varying vec3 vColor;
+    varying float vAlpha;
+    varying float vDepth;
+    varying float vPulse;
+
+    void main() {
+      vec2 point = gl_PointCoord - vec2(0.5);
+      float distanceFromCenter = length(point);
+      float softDisc = smoothstep(0.5, 0.17, distanceFromCenter);
+      float core = smoothstep(0.22, 0.0, distanceFromCenter);
+      float alpha = (softDisc * 0.68 + core * 0.28) * vAlpha;
+
+      if (alpha < 0.012) {
+        discard;
+      }
+
+      vec3 color = vColor * (0.82 + vDepth * 0.22 + vPulse * 0.1);
+      gl_FragColor = vec4(color, alpha);
+    }
+  `;
+
   const canvas = document.getElementById("avano-field");
-  const ctx = canvas.getContext("2d", { alpha: true });
+  const gl = canvas.getContext("webgl", {
+    alpha: true,
+    antialias: true,
+    depth: false,
+    premultipliedAlpha: false
+  });
   const logo = new Image();
-  const particles = [];
-  const pointer = { x: 0, y: 0, px: 0, py: 0, trail: [] };
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   let width = 0;
   let height = 0;
   let dpr = 1;
-  let targets = [];
   let logoReady = false;
-  let cloudSpawned = false;
-  let lastTime = performance.now();
+  let animationStarted = false;
+  let program = null;
+  let particleSpecs = [];
+  let cloudBuffer = null;
+  let targetBuffer = null;
+  let colorBuffer = null;
+  let metaBuffer = null;
+
+  const pointer = {
+    x: -10000,
+    y: -10000,
+    previousX: -10000,
+    previousY: -10000,
+    strength: 0
+  };
 
   const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
   const lerp = (a, b, t) => a + (b - a) * t;
-  const ease = (t) =>
-    t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
   function colorDistance(pixel, color) {
     return (
-      (pixel.r - color.r) ** 2 +
-      (pixel.g - color.g) ** 2 +
-      (pixel.b - color.b) ** 2
+      (pixel.r / 255 - color.r) ** 2 +
+      (pixel.g / 255 - color.g) ** 2 +
+      (pixel.b / 255 - color.b) ** 2
     );
   }
 
@@ -51,87 +202,104 @@
   }
 
   function isLogoPixel(pixel) {
-    return pixel.a > 28 && colorDistance(pixel, BACKGROUND) > 620;
+    return (
+      pixel.a > 28 &&
+      (pixel.r - BACKGROUND.r) ** 2 +
+        (pixel.g - BACKGROUND.g) ** 2 +
+        (pixel.b - BACKGROUND.b) ** 2 >
+        620
+    );
   }
 
-  function createParticles() {
-    for (let i = 0; i < PARTICLE_COUNT; i += 1) {
-      if (particles[i]) continue;
-      particles[i] = {
-        x: width * 0.72,
-        y: height * 0.29,
-        vx: 0,
-        vy: 0,
-        targetX: Math.random() * width,
-        targetY: Math.random() * height,
-        cloudX: width * 0.72,
-        cloudY: height * 0.29,
-        cloudAngle: Math.random() * Math.PI * 2,
-        cloudRadius: Math.sqrt(Math.random()),
-        cloudSkew: Math.random(),
-        color: i % 2,
-        seed: Math.random() * 1000,
-        size: lerp(0.72, 1.85, Math.random()),
-        delay: Math.random(),
-        phase: Math.random()
-      };
+  function createShader(type, source) {
+    const shader = gl.createShader(type);
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      const error = gl.getShaderInfoLog(shader);
+      gl.deleteShader(shader);
+      throw new Error(error || "Unable to compile AVANO particle shader.");
     }
+
+    return shader;
   }
 
-  function updateCloudTargets() {
+  function createProgram() {
+    const vertexShader = createShader(gl.VERTEX_SHADER, VERTEX_SHADER);
+    const fragmentShader = createShader(gl.FRAGMENT_SHADER, FRAGMENT_SHADER);
+    const nextProgram = gl.createProgram();
+
+    gl.attachShader(nextProgram, vertexShader);
+    gl.attachShader(nextProgram, fragmentShader);
+    gl.linkProgram(nextProgram);
+    gl.deleteShader(vertexShader);
+    gl.deleteShader(fragmentShader);
+
+    if (!gl.getProgramParameter(nextProgram, gl.LINK_STATUS)) {
+      const error = gl.getProgramInfoLog(nextProgram);
+      gl.deleteProgram(nextProgram);
+      throw new Error(error || "Unable to link AVANO particle program.");
+    }
+
+    return nextProgram;
+  }
+
+  function createParticleSpecs() {
+    if (particleSpecs.length) return;
+
+    particleSpecs = Array.from({ length: PARTICLE_COUNT }, (_, index) => ({
+      angle: Math.random() * Math.PI * 2,
+      radius: Math.sqrt(Math.random()),
+      skew: Math.random(),
+      seed: Math.random() * 1000,
+      size: lerp(1.15, 2.7, Math.random()),
+      depth: Math.random() ** 0.55,
+      delay: Math.random() * TIMING.stagger,
+      color: index % 2
+    }));
+  }
+
+  function buildCloudTargets() {
     const centerX = width * 0.72;
     const centerY = height * 0.29;
     const radiusX = Math.min(width * 0.29, 430);
     const radiusY = Math.min(height * 0.31, 300);
+    const cloud = new Float32Array(PARTICLE_COUNT * 2);
 
-    for (const particle of particles) {
-      const angle = particle.cloudAngle;
+    for (let i = 0; i < PARTICLE_COUNT; i += 1) {
+      const spec = particleSpecs[i];
       const organicEdge =
         0.9 +
-        Math.sin(angle * 2.4 + particle.seed) * 0.16 +
-        Math.sin(angle * 5.1 - particle.seed * 0.37) * 0.12;
-      const density = particle.cloudRadius * organicEdge;
-      const upperLift = Math.sin(angle - 0.65) > 0 ? 0.9 : 1.08;
-      const skew = (particle.cloudSkew - 0.5) * radiusX * 0.14 * density;
+        Math.sin(spec.angle * 2.4 + spec.seed) * 0.16 +
+        Math.sin(spec.angle * 5.1 - spec.seed * 0.37) * 0.12;
+      const density = spec.radius * organicEdge;
+      const upperLift = Math.sin(spec.angle - 0.65) > 0 ? 0.9 : 1.08;
+      const skew = (spec.skew - 0.5) * radiusX * 0.14 * density;
 
-      particle.cloudX = centerX + Math.cos(angle) * radiusX * density + skew;
-      particle.cloudY = centerY + Math.sin(angle) * radiusY * density * upperLift;
+      cloud[i * 2] = centerX + Math.cos(spec.angle) * radiusX * density + skew;
+      cloud[i * 2 + 1] =
+        centerY + Math.sin(spec.angle) * radiusY * density * upperLift;
     }
 
-    if (!cloudSpawned) {
-      for (const particle of particles) {
-        particle.x = particle.cloudX + (Math.random() - 0.5) * 18;
-        particle.y = particle.cloudY + (Math.random() - 0.5) * 18;
-        particle.vx = (Math.random() - 0.5) * 0.08;
-        particle.vy = (Math.random() - 0.5) * 0.08;
-      }
-      cloudSpawned = true;
-    }
+    return cloud;
   }
 
   function pickTargets(pool) {
     const picked = [];
     const stride = Math.max(1, Math.floor(pool.length / PARTICLE_COUNT));
     let cursor = Math.floor(Math.random() * stride);
+
     for (let i = 0; i < PARTICLE_COUNT; i += 1) {
       cursor = (cursor + stride + Math.floor(Math.random() * 7)) % pool.length;
       picked.push(pool[cursor]);
     }
+
     return picked;
   }
 
-  function assignTargets() {
-    if (!targets.length) return;
-    for (let i = 0; i < PARTICLE_COUNT; i += 1) {
-      const target = targets[i % targets.length];
-      particles[i].targetX = target.x;
-      particles[i].targetY = target.y;
-      particles[i].color = target.color;
-    }
-  }
-
   function sampleLogoTargets() {
-    if (!width || !height || !logo.complete || !logo.naturalWidth) return;
+    if (!width || !height || !logo.complete || !logo.naturalWidth) return [];
 
     const sample = document.createElement("canvas");
     const sampleCtx = sample.getContext("2d", { willReadFrequently: true });
@@ -156,7 +324,7 @@
         "AVANO logo could not be sampled. The particle field requires a same-origin SVG or image.",
         error
       );
-      return;
+      return [];
     }
 
     const pool = [];
@@ -172,8 +340,8 @@
 
         if (isLogoPixel(pixel)) {
           pool.push({
-            x: left + x + (Math.random() - 0.5) * 0.45,
-            y: top + y + (Math.random() - 0.5) * 0.45,
+            x: left + x + (Math.random() - 0.5) * 0.25,
+            y: top + y + (Math.random() - 0.5) * 0.25,
             color: nearestBrandColor(pixel)
           });
         }
@@ -184,14 +352,52 @@
       console.error(
         `AVANO logo sampling found only ${pool.length} visible pixels. Check uploads/avano-animation-svg.svg.`
       );
-      targets = [];
-      logoReady = false;
-      return;
+      return [];
     }
 
-    targets = pickTargets(pool);
-    logoReady = true;
-    assignTargets();
+    return pickTargets(pool);
+  }
+
+  function uploadAttribute(buffer, data, attribute, size) {
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(attribute);
+    gl.vertexAttribPointer(attribute, size, gl.FLOAT, false, 0, 0);
+  }
+
+  function rebuildField() {
+    if (!program || !width || !height) return;
+
+    createParticleSpecs();
+
+    const cloudData = buildCloudTargets();
+    const sampledTargets = logoReady ? sampleLogoTargets() : [];
+    const targetData = new Float32Array(PARTICLE_COUNT * 2);
+    const colorData = new Float32Array(PARTICLE_COUNT * 3);
+    const metaData = new Float32Array(PARTICLE_COUNT * 4);
+
+    for (let i = 0; i < PARTICLE_COUNT; i += 1) {
+      const spec = particleSpecs[i];
+      const target = sampledTargets[i];
+      const colorIndex = target ? target.color : spec.color;
+      const color = BRAND_COLORS[colorIndex];
+
+      targetData[i * 2] = target ? target.x : cloudData[i * 2];
+      targetData[i * 2 + 1] = target ? target.y : cloudData[i * 2 + 1];
+      colorData[i * 3] = color.r;
+      colorData[i * 3 + 1] = color.g;
+      colorData[i * 3 + 2] = color.b;
+      metaData[i * 4] = spec.size;
+      metaData[i * 4 + 1] = spec.seed;
+      metaData[i * 4 + 2] = spec.depth;
+      metaData[i * 4 + 3] = spec.delay;
+    }
+
+    gl.useProgram(program);
+    uploadAttribute(cloudBuffer, cloudData, gl.getAttribLocation(program, "aCloud"), 2);
+    uploadAttribute(targetBuffer, targetData, gl.getAttribLocation(program, "aTarget"), 2);
+    uploadAttribute(colorBuffer, colorData, gl.getAttribLocation(program, "aColor"), 3);
+    uploadAttribute(metaBuffer, metaData, gl.getAttribLocation(program, "aMeta"), 4);
   }
 
   function resize() {
@@ -202,182 +408,75 @@
     canvas.height = Math.floor(height * dpr);
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    createParticles();
-    updateCloudTargets();
-    sampleLogoTargets();
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    rebuildField();
   }
 
-  function curlField(x, y, time, seed) {
-    const a = 0.0085;
-    const b = 0.0105;
-    const c = 0.0045;
-    const t = time * 0.00028;
-    const sx = x + seed * 19.7;
-    const sy = y - seed * 11.3;
-    const p1x = sx * a + t * 2.3;
-    const p1y = sy * b - t * 1.8;
-    const p2x = sx * c - t * 1.2 + seed;
-    const p2y = sy * c + t * 2.6 - seed * 0.7;
-    return {
-      x: (-b * Math.sin(p1x) * Math.sin(p1y) + c * Math.cos(p2x) * Math.cos(p2y)) * 34,
-      y: -(a * Math.cos(p1x) * Math.cos(p1y) - c * Math.sin(p2x) * Math.sin(p2y)) * 34
-    };
-  }
+  function render(now) {
+    pointer.strength *= 0.93;
 
-  function cycleForm(time, particle) {
-    if (!logoReady) return 0;
-    if (reducedMotion) return 1;
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.useProgram(program);
+    gl.uniform2f(gl.getUniformLocation(program, "uResolution"), width, height);
+    gl.uniform2f(gl.getUniformLocation(program, "uCloudCenter"), width * 0.72, height * 0.29);
+    gl.uniform2f(gl.getUniformLocation(program, "uPointer"), pointer.x, pointer.y);
+    gl.uniform1f(gl.getUniformLocation(program, "uTime"), now);
+    gl.uniform1f(gl.getUniformLocation(program, "uDpr"), dpr);
+    gl.uniform1f(gl.getUniformLocation(program, "uPointerStrength"), pointer.strength);
+    gl.uniform1f(gl.getUniformLocation(program, "uReducedMotion"), reducedMotion ? 1 : 0);
+    gl.drawArrays(gl.POINTS, 0, PARTICLE_COUNT);
 
-    const phase = time % TIMING.total;
-    const resolveStart = TIMING.cloud;
-    const formedStart = resolveStart + TIMING.resolve;
-    const dissolveStart = formedStart + TIMING.formed;
-    const delay = particle.delay * TIMING.stagger;
-    const transitionDuration = Math.max(1, TIMING.resolve - TIMING.stagger);
-
-    if (phase < resolveStart) return 0;
-
-    if (phase < formedStart) {
-      return ease(clamp((phase - resolveStart - delay) / transitionDuration, 0, 1));
-    }
-
-    if (phase < dissolveStart) return 1;
-
-    return 1 - ease(clamp((phase - dissolveStart - delay) / transitionDuration, 0, 1));
-  }
-
-  function pointerInfluence(particle) {
-    let pushX = 0;
-    let pushY = 0;
-    let disrupt = 0;
-    for (const point of pointer.trail) {
-      const dx = particle.x - point.x;
-      const dy = particle.y - point.y;
-      const distSq = dx * dx + dy * dy;
-      const energy = clamp(point.speed / 48, 0, 1);
-      const radius = lerp(80, 180, energy) * point.life;
-      if (distSq >= radius * radius || radius <= 0) continue;
-
-      const dist = Math.sqrt(distSq) || 1;
-      const influence = clamp(1 - dist / radius, 0, 1) ** 2 * point.life;
-      const nx = dx / dist;
-      const ny = dy / dist;
-      const tangent = point.spin * influence * lerp(0.16, 0.75, energy);
-      pushX += nx * influence * lerp(0.22, 1.05, energy) - ny * tangent + point.vx * influence * 0.006;
-      pushY += ny * influence * lerp(0.22, 1.05, energy) + nx * tangent + point.vy * influence * 0.006;
-      disrupt = Math.max(disrupt, influence * lerp(0.2, 0.55, energy));
-    }
-    return { pushX, pushY, disrupt };
-  }
-
-  function updateTrail(dt) {
-    for (let i = pointer.trail.length - 1; i >= 0; i -= 1) {
-      pointer.trail[i].life -= dt * 1.85;
-      if (pointer.trail[i].life <= 0) pointer.trail.splice(i, 1);
-    }
-  }
-
-  function addPointerEvent(event) {
-    const rect = canvas.getBoundingClientRect();
-    pointer.px = pointer.x || event.clientX - rect.left;
-    pointer.py = pointer.y || event.clientY - rect.top;
-    pointer.x = event.clientX - rect.left;
-    pointer.y = event.clientY - rect.top;
-    const vx = pointer.x - pointer.px;
-    const vy = pointer.y - pointer.py;
-    pointer.trail.push({
-      x: pointer.x,
-      y: pointer.y,
-      vx,
-      vy,
-      speed: Math.hypot(vx, vy),
-      spin: vx * vy >= 0 ? 1 : -1,
-      life: 1
-    });
-    if (pointer.trail.length > 12) pointer.trail.shift();
-  }
-
-  function step(now) {
-    const dt = clamp((now - lastTime) / 1000, 0.001, 0.033);
-    lastTime = now;
-    updateTrail(dt);
-    ctx.clearRect(0, 0, width, height);
-
-    for (const particle of particles) {
-      const field = curlField(particle.x, particle.y, now, particle.seed);
-      const mouse = pointerInfluence(particle);
-      const form = clamp(cycleForm(now, particle) - mouse.disrupt, 0, 1);
-      const cloudCenterX = width * 0.72;
-      const cloudCenterY = height * 0.29;
-      const idleRotation = now * 0.000035 * (1 - form);
-      const cloudDx = particle.cloudX - cloudCenterX;
-      const cloudDy = particle.cloudY - cloudCenterY;
-      const rotationCos = Math.cos(idleRotation);
-      const rotationSin = Math.sin(idleRotation);
-      const rotatedCloudX =
-        cloudCenterX + cloudDx * rotationCos - cloudDy * rotationSin;
-      const rotatedCloudY =
-        cloudCenterY + cloudDx * rotationSin + cloudDy * rotationCos;
-      const cloudWobbleX =
-        Math.sin(now * 0.0002 + particle.seed) * lerp(3, 2, form);
-      const cloudWobbleY =
-        Math.cos(now * 0.00018 + particle.seed * 1.7) * lerp(3, 2, form);
-      const activeTargetX = lerp(
-        rotatedCloudX + cloudWobbleX,
-        particle.targetX,
-        form
-      );
-      const activeTargetY = lerp(
-        rotatedCloudY + cloudWobbleY,
-        particle.targetY,
-        form
-      );
-      const targetDx = activeTargetX - particle.x;
-      const targetDy = activeTargetY - particle.y;
-      const travel = Math.sin(form * Math.PI);
-      const attraction = lerp(0.035, 0.06, form) + travel * 0.16;
-      const turbulence = reducedMotion ? 0.01 : lerp(0.08, 0.02, form);
-      const micro = Math.sin(now * 0.0006 + particle.seed) * 0.002;
-
-      particle.vx += field.x * turbulence * dt + targetDx * attraction + mouse.pushX + micro;
-      particle.vy += field.y * turbulence * dt + targetDy * attraction + mouse.pushY - micro;
-      const damping = Math.min(0.94, lerp(0.88, 0.83, form) + travel * 0.06);
-      particle.vx *= damping;
-      particle.vy *= damping;
-      const maxVelocity = lerp(1.15, 2.05, form) + travel * 34;
-      const velocity = Math.hypot(particle.vx, particle.vy);
-      if (velocity > maxVelocity) {
-        const velocityScale = maxVelocity / velocity;
-        particle.vx *= velocityScale;
-        particle.vy *= velocityScale;
-      }
-      particle.x += particle.vx * (lerp(34, 30, form) + travel * 8) * dt;
-      particle.y += particle.vy * (lerp(30, 27, form) + travel * 8) * dt;
-
-      if (particle.x < -30) particle.x = width + 30;
-      if (particle.x > width + 30) particle.x = -30;
-      if (particle.y < -30) particle.y = height + 30;
-      if (particle.y > height + 30) particle.y = -30;
-
-      ctx.globalAlpha = lerp(0.3, 0.92, form) * lerp(0.72, 1, particle.phase);
-      ctx.fillStyle = BRAND_COLORS[particle.color].hex;
-      ctx.beginPath();
-      ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    ctx.globalAlpha = 1;
-    requestAnimationFrame(step);
+    requestAnimationFrame(render);
   }
 
   function start() {
+    if (animationStarted || !program) return;
+
+    animationStarted = true;
     resize();
-    lastTime = performance.now();
-    requestAnimationFrame(step);
+    requestAnimationFrame(render);
   }
 
-  logo.onload = start;
+  function trackPointer(event) {
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    const hasPointer = pointer.x > -9000;
+    const speed = hasPointer ? Math.hypot(x - pointer.previousX, y - pointer.previousY) : 0;
+
+    pointer.previousX = hasPointer ? pointer.x : x;
+    pointer.previousY = hasPointer ? pointer.y : y;
+    pointer.x = x;
+    pointer.y = y;
+    pointer.strength = Math.max(pointer.strength, clamp(speed / 70, 0.12, 0.72));
+  }
+
+  if (!gl) {
+    console.error("WebGL is required for the AVANO particle field.");
+    return;
+  }
+
+  try {
+    program = createProgram();
+    cloudBuffer = gl.createBuffer();
+    targetBuffer = gl.createBuffer();
+    colorBuffer = gl.createBuffer();
+    metaBuffer = gl.createBuffer();
+
+    gl.disable(gl.DEPTH_TEST);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.clearColor(0, 0, 0, 0);
+  } catch (error) {
+    console.error(error);
+    return;
+  }
+
+  logo.onload = () => {
+    logoReady = true;
+    rebuildField();
+    start();
+  };
   logo.onerror = () => {
     console.error(
       `Missing AVANO logo target: ${LOGO_PATH}. Upload the exact SVG to uploads/avano-animation-svg.svg.`
@@ -385,7 +484,8 @@
     start();
   };
   logo.src = LOGO_PATH;
+
   window.addEventListener("resize", resize, { passive: true });
-  window.addEventListener("pointermove", addPointerEvent, { passive: true });
-  window.addEventListener("pointerdown", addPointerEvent, { passive: true });
+  window.addEventListener("pointermove", trackPointer, { passive: true });
+  window.addEventListener("pointerdown", trackPointer, { passive: true });
 })();
