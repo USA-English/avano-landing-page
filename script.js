@@ -40,6 +40,7 @@
     varying float vPulse;
     varying float vHole;
     varying float vSparkle;
+    varying float vCloud;
 
     float easeCubic(float t) {
       return t < 0.5
@@ -130,21 +131,23 @@
         (0.5 + 0.5 * sin(time * 1.45 + seed * 2.13)) *
         (0.5 + 0.5 * sin(time * 0.67 + seed * 0.71));
       sparkle = pow(sparkle, 2.4) * mix(0.42, 1.0, depth);
-      float depthFade = mix(0.54, 1.0, depth);
-      float stateAlpha = mix(0.46, 0.96, form);
+      float depthFade = mix(0.58, 1.0, depth);
+      float stateAlpha = mix(0.76, 0.96, form);
       float travelAlpha = 1.0 + travel * 0.16;
+      float cloudVisibility = 1.0 + cloudWeight * 0.42;
       float holeFade = clamp(coreHole * 0.88 + fieldWarp * 0.2, 0.0, 0.92) * uPointerPresence;
 
       vec2 clip = (position / uResolution) * 2.0 - 1.0;
       gl_Position = vec4(clip.x, -clip.y, 0.0, 1.0);
-      gl_PointSize = size * uDpr * (1.15 + depth * 1.55 + breathingPulse * 0.2 + travel * 0.4);
+      gl_PointSize = size * uDpr * (1.32 + depth * 1.55 + breathingPulse * 0.2 + travel * 0.4 + cloudWeight * 0.22);
 
       vColor = aColor;
-      vAlpha = depthFade * stateAlpha * travelAlpha * (1.0 + sparkle * 0.18) * (1.0 - holeFade * 0.72);
+      vAlpha = depthFade * stateAlpha * travelAlpha * cloudVisibility * (1.0 + sparkle * 0.18) * (1.0 - holeFade * 0.72);
       vDepth = depth;
       vPulse = breathingPulse;
       vHole = holeFade;
       vSparkle = sparkle;
+      vCloud = cloudWeight;
     }
   `;
 
@@ -157,6 +160,7 @@
     varying float vPulse;
     varying float vHole;
     varying float vSparkle;
+    varying float vCloud;
 
     void main() {
       vec2 point = gl_PointCoord - vec2(0.5);
@@ -169,7 +173,7 @@
         discard;
       }
 
-      vec3 color = vColor * (0.84 + vDepth * 0.22 + vPulse * 0.18 + vSparkle * 0.16);
+      vec3 color = vColor * (0.9 + vDepth * 0.24 + vPulse * 0.18 + vSparkle * 0.16 + vCloud * 0.28);
       gl_FragColor = vec4(color, alpha);
     }
   `;
