@@ -253,46 +253,54 @@ a {
 }
 
 .hero__intro {
-  align-self: center;
-  justify-self: start;
-  width: min(43vw, 41rem);
-  margin-left: clamp(0.5rem, 2.5vw, 2.5rem);
-  transform: translateY(-2vh);
+  position: absolute;
+  inset: 0;
   pointer-events: auto;
 }
 
 .hero__kicker,
 .hero__bridge {
-  max-width: 32rem;
+  position: absolute;
+  left: clamp(4.2rem, 6.4vw, 6.9rem);
+  width: min(42vw, 44.5rem);
   margin: 0;
   color: color-mix(in srgb, var(--navy) 84%, var(--gold));
   font-family: var(--font-secondary);
-  font-size: clamp(0.92rem, 1.15vw, 1.14rem);
+  font-size: clamp(0.82rem, 0.95vw, 1rem);
   font-weight: 500;
-  line-height: 1.58;
+  line-height: 1.45;
   letter-spacing: 0.08em;
 }
 
+.hero__kicker {
+  top: clamp(3.9rem, 4.7vw, 5.1rem);
+}
+
 .hero__title {
-  max-width: 10ch;
-  margin: 1.15rem 0 1.2rem;
+  position: absolute;
+  top: clamp(10.2rem, 14vh, 12.6rem);
+  left: clamp(4.2rem, 6.4vw, 6.9rem);
+  width: min(42vw, 44.5rem);
+  max-width: none;
+  margin: 0;
   color: var(--navy);
   font-family: var(--font-title);
-  font-size: clamp(3.3rem, 6.6vw, 7rem);
+  font-size: clamp(3.35rem, 4.85vw, 5.9rem);
   font-weight: 600;
-  line-height: 0.88;
+  line-height: 0.86;
 }
 
 .hero__bridge {
-  max-width: 28rem;
+  top: clamp(31rem, 51.5vh, 34rem);
+  width: min(42vw, 44.5rem);
   color: var(--gold);
 }
 
 .hero__closing {
   position: absolute;
-  right: clamp(1.25rem, 5vw, 5.5rem);
-  bottom: clamp(5.6rem, 12vh, 8.5rem);
-  width: min(39vw, 35rem);
+  right: clamp(4.2rem, 6.9vw, 7.2rem);
+  bottom: clamp(6.5rem, 13.4vh, 8.2rem);
+  width: min(34vw, 34rem);
   pointer-events: auto;
 }
 
@@ -300,9 +308,9 @@ a {
   max-width: none;
   color: color-mix(in srgb, var(--navy) 88%, var(--gold));
   font-family: var(--font-title);
-  font-size: clamp(1.9rem, 3.2vw, 3.75rem);
+  font-size: clamp(1.45rem, 1.9vw, 2.3rem);
   font-weight: 400;
-  line-height: 0.98;
+  line-height: 1.06;
   letter-spacing: 0;
 }
 
@@ -429,27 +437,39 @@ p {
   }
 
   .hero__intro {
-    width: min(100%, 28rem);
-    margin-left: 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
     align-self: start;
-    padding-top: 16vh;
-    transform: none;
+    width: min(100%, 28rem);
+    padding-top: 12vh;
+    pointer-events: auto;
+  }
+
+  .hero__kicker,
+  .hero__bridge,
+  .hero__title {
+    position: static;
+    width: auto;
+    max-width: none;
   }
 
   .hero__title {
-    max-width: 11ch;
-    font-size: clamp(3rem, 17vw, 5.4rem);
+    font-size: clamp(2.4rem, 12vw, 4.25rem);
+    line-height: 0.9;
   }
 
   .hero__closing {
     right: clamp(1.25rem, 6vw, 2rem);
-    bottom: 6.5rem;
+    bottom: 5.5rem;
     left: clamp(1.25rem, 6vw, 2rem);
     width: auto;
   }
 
   .hero__closing h2 {
-    font-size: clamp(1.65rem, 8vw, 3rem);
+    font-size: clamp(1.35rem, 6.6vw, 2.3rem);
+    line-height: 1.02;
   }
 }
 
