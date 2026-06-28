@@ -231,54 +231,43 @@ a {
   pointer-events: none;
 }
 
-.site-header {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  color: var(--navy);
-  font-family: var(--font-secondary);
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.site-header a,
-.scroll-cue {
-  pointer-events: auto;
-}
-
-.site-header__link {
-  color: color-mix(in srgb, var(--navy) 76%, var(--gold));
-}
-
 .hero__intro {
   position: absolute;
   inset: 0;
   pointer-events: none;
 }
 
-.hero__kicker,
+.hero__opening-title,
+.hero__opening-subtitle,
 .hero__bridge {
   position: absolute;
   left: clamp(4.2rem, 6.4vw, 6.9rem);
   width: min(42vw, 44.5rem);
   margin: 0;
+}
+
+.hero__opening-title {
+  top: clamp(3.9rem, 4.7vw, 5.1rem);
+  color: var(--navy);
+  font-family: var(--font-title);
+  font-size: clamp(2.05rem, 2.55vw, 3.05rem);
+  font-weight: 500;
+  line-height: 0.98;
+}
+
+.hero__opening-subtitle {
+  top: clamp(7.2rem, 8.3vw, 9rem);
   color: color-mix(in srgb, var(--navy) 84%, var(--gold));
   font-family: var(--font-secondary);
-  font-size: clamp(0.82rem, 0.95vw, 1rem);
+  font-size: clamp(0.9rem, 1.05vw, 1.1rem);
   font-weight: 500;
   line-height: 1.45;
   letter-spacing: 0.08em;
 }
 
-.hero__kicker {
-  top: clamp(3.9rem, 4.7vw, 5.1rem);
-}
-
 .hero__title {
   position: absolute;
-  top: clamp(10.2rem, 14vh, 12.6rem);
+  top: clamp(11.5rem, 16vh, 14.2rem);
   left: clamp(4.2rem, 6.4vw, 6.9rem);
   width: min(42vw, 44.5rem);
   max-width: none;
@@ -291,9 +280,14 @@ a {
 }
 
 .hero__bridge {
-  top: clamp(31rem, 51.5vh, 34rem);
+  top: clamp(32.8rem, 55.5vh, 36.5rem);
   width: min(42vw, 44.5rem);
   color: var(--gold);
+  font-family: var(--font-secondary);
+  font-size: clamp(1.02rem, 1.22vw, 1.32rem);
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: 0.08em;
 }
 
 .hero__closing {
@@ -325,34 +319,19 @@ a {
 }
 
 .reveal--second {
-  animation-delay: 2.55s;
+  animation-delay: 1.45s;
 }
 
 .reveal--third {
-  animation-delay: 4.4s;
+  animation-delay: 2.85s;
 }
 
 .reveal--fourth {
-  animation-delay: 5.6s;
+  animation-delay: 4.75s;
 }
 
-.scroll-cue {
-  display: grid;
-  width: 2rem;
-  height: 3.25rem;
-  margin: 0 auto;
-  place-items: start center;
-  border: 1px solid rgba(17, 50, 91, 0.32);
-  border-radius: 999px;
-  padding-top: 0.72rem;
-}
-
-.scroll-cue span {
-  width: 0.32rem;
-  height: 0.32rem;
-  border-radius: 50%;
-  background: var(--gold);
-  animation: cue 1.8s ease-in-out infinite;
+.reveal--fifth {
+  animation-delay: 5.85s;
 }
 
 .content-section {
@@ -411,19 +390,6 @@ p {
   line-height: 1.65;
 }
 
-@keyframes cue {
-  0%,
-  100% {
-    opacity: 0.35;
-    transform: translateY(0);
-  }
-
-  45% {
-    opacity: 1;
-    transform: translateY(1.05rem);
-  }
-}
-
 @keyframes reveal-copy {
   to {
     opacity: 1;
@@ -432,10 +398,6 @@ p {
 }
 
 @media (max-width: 720px) {
-  .site-header {
-    font-size: 0.72rem;
-  }
-
   .hero__intro {
     position: relative;
     display: flex;
@@ -447,7 +409,8 @@ p {
     pointer-events: none;
   }
 
-  .hero__kicker,
+  .hero__opening-title,
+  .hero__opening-subtitle,
   .hero__bridge,
   .hero__title {
     position: static;
@@ -458,6 +421,14 @@ p {
   .hero__title {
     font-size: clamp(2.4rem, 12vw, 4.25rem);
     line-height: 0.9;
+  }
+
+  .hero__opening-title {
+    font-size: clamp(1.8rem, 8.5vw, 3rem);
+  }
+
+  .hero__bridge {
+    font-size: clamp(0.98rem, 4vw, 1.25rem);
   }
 
   .hero__closing {
@@ -476,10 +447,6 @@ p {
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
-  }
-
-  .scroll-cue span {
-    animation: none;
   }
 
   .reveal {
