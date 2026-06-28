@@ -115,16 +115,20 @@
       float pointerDistance = length(pointerDelta);
       vec2 pointerDirection = pointerDistance > 0.01 ? pointerDelta / pointerDistance : vec2(0.0, 0.0);
       vec2 pointerTangent = vec2(-pointerDirection.y, pointerDirection.x);
-      float coreHole = smoothstep(uPointerCoreRadius, 0.0, pointerDistance);
-      float fieldWarp = smoothstep(uPointerFieldRadius, 0.0, pointerDistance);
+      float pointerCoreRadius = uPointerCoreRadius * mix(0.42, 1.55, cloudWeight);
+      float pointerFieldRadius = uPointerFieldRadius * mix(0.5, 1.4, cloudWeight);
+      float pointerEffect = uPointerPresence * mix(0.12, 1.15, cloudWeight);
+      float pointerHolePresence = uPointerPresence * smoothstep(0.15, 0.85, cloudWeight);
+      float coreHole = smoothstep(pointerCoreRadius, 0.0, pointerDistance);
+      float fieldWarp = smoothstep(pointerFieldRadius, 0.0, pointerDistance);
       float swirlRing =
-        smoothstep(uPointerCoreRadius * 0.45, uPointerCoreRadius, pointerDistance) *
-        (1.0 - smoothstep(uPointerCoreRadius * 1.15, uPointerFieldRadius, pointerDistance));
+        smoothstep(pointerCoreRadius * 0.45, pointerCoreRadius, pointerDistance) *
+        (1.0 - smoothstep(pointerCoreRadius * 1.15, pointerFieldRadius, pointerDistance));
       float depthResponse = 0.72 + depth * 0.7;
-      float persistentPush = coreHole * 90.0 + fieldWarp * 42.0;
-      float movingSwirl = swirlRing * (28.0 + uPointerEnergy * 34.0);
-      position += pointerDirection * persistentPush * uPointerPresence * depthResponse;
-      position += pointerTangent * movingSwirl * uPointerPresence * (0.62 + depth * 0.72);
+      float persistentPush = coreHole * mix(18.0, 118.0, cloudWeight) + fieldWarp * mix(8.0, 52.0, cloudWeight);
+      float movingSwirl = swirlRing * mix(5.0, 34.0 + uPointerEnergy * 38.0, cloudWeight);
+      position += pointerDirection * persistentPush * pointerEffect * depthResponse;
+      position += pointerTangent * movingSwirl * pointerEffect * (0.62 + depth * 0.72);
 
       float breathingPulse = 0.5 + 0.5 * sin(time * 0.85 + seed);
       float sparkle =
@@ -135,7 +139,7 @@
       float stateAlpha = mix(0.76, 0.96, form);
       float travelAlpha = 1.0 + travel * 0.16;
       float cloudVisibility = 1.0 + cloudWeight * 0.42;
-      float holeFade = clamp(coreHole * 0.88 + fieldWarp * 0.2, 0.0, 0.92) * uPointerPresence;
+      float holeFade = clamp(coreHole * 0.92 + fieldWarp * 0.22, 0.0, 0.94) * pointerHolePresence;
 
       vec2 clip = (position / uResolution) * 2.0 - 1.0;
       gl_Position = vec4(clip.x, -clip.y, 0.0, 1.0);
