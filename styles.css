@@ -252,11 +252,80 @@ a {
   color: color-mix(in srgb, var(--navy) 76%, var(--gold));
 }
 
-.hero__copy {
+.hero__intro {
   align-self: center;
-  justify-self: center;
-  width: min(76vw, 68rem);
-  aspect-ratio: 4 / 1;
+  justify-self: start;
+  width: min(43vw, 41rem);
+  margin-left: clamp(0.5rem, 2.5vw, 2.5rem);
+  transform: translateY(-2vh);
+  pointer-events: auto;
+}
+
+.hero__kicker,
+.hero__bridge {
+  max-width: 32rem;
+  margin: 0;
+  color: color-mix(in srgb, var(--navy) 84%, var(--gold));
+  font-family: var(--font-secondary);
+  font-size: clamp(0.92rem, 1.15vw, 1.14rem);
+  font-weight: 500;
+  line-height: 1.58;
+  letter-spacing: 0.08em;
+}
+
+.hero__title {
+  max-width: 10ch;
+  margin: 1.15rem 0 1.2rem;
+  color: var(--navy);
+  font-family: var(--font-title);
+  font-size: clamp(3.3rem, 6.6vw, 7rem);
+  font-weight: 600;
+  line-height: 0.88;
+}
+
+.hero__bridge {
+  max-width: 28rem;
+  color: var(--gold);
+}
+
+.hero__closing {
+  position: absolute;
+  right: clamp(1.25rem, 5vw, 5.5rem);
+  bottom: clamp(5.6rem, 12vh, 8.5rem);
+  width: min(39vw, 35rem);
+  pointer-events: auto;
+}
+
+.hero__closing h2 {
+  max-width: none;
+  color: color-mix(in srgb, var(--navy) 88%, var(--gold));
+  font-family: var(--font-title);
+  font-size: clamp(1.9rem, 3.2vw, 3.75rem);
+  font-weight: 400;
+  line-height: 0.98;
+  letter-spacing: 0;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(1rem);
+  animation: reveal-copy 2.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.reveal--first {
+  animation-delay: 0.35s;
+}
+
+.reveal--second {
+  animation-delay: 2.55s;
+}
+
+.reveal--third {
+  animation-delay: 4.4s;
+}
+
+.reveal--fourth {
+  animation-delay: 5.6s;
 }
 
 .scroll-cue {
@@ -347,13 +416,40 @@ p {
   }
 }
 
+@keyframes reveal-copy {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (max-width: 720px) {
   .site-header {
     font-size: 0.72rem;
   }
 
-  .hero__copy {
-    width: 88vw;
+  .hero__intro {
+    width: min(100%, 28rem);
+    margin-left: 0;
+    align-self: start;
+    padding-top: 16vh;
+    transform: none;
+  }
+
+  .hero__title {
+    max-width: 11ch;
+    font-size: clamp(3rem, 17vw, 5.4rem);
+  }
+
+  .hero__closing {
+    right: clamp(1.25rem, 6vw, 2rem);
+    bottom: 6.5rem;
+    left: clamp(1.25rem, 6vw, 2rem);
+    width: auto;
+  }
+
+  .hero__closing h2 {
+    font-size: clamp(1.65rem, 8vw, 3rem);
   }
 }
 
@@ -363,6 +459,12 @@ p {
   }
 
   .scroll-cue span {
+    animation: none;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
     animation: none;
   }
 }
