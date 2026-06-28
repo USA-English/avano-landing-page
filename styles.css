@@ -255,7 +255,7 @@ a {
 .hero__intro {
   position: absolute;
   inset: 0;
-  pointer-events: auto;
+  pointer-events: none;
 }
 
 .hero__kicker,
@@ -301,7 +301,7 @@ a {
   right: clamp(4.2rem, 6.9vw, 7.2rem);
   bottom: clamp(6.5rem, 13.4vh, 8.2rem);
   width: min(34vw, 34rem);
-  pointer-events: auto;
+  pointer-events: none;
 }
 
 .hero__closing h2 {
@@ -444,7 +444,7 @@ p {
     align-self: start;
     width: min(100%, 28rem);
     padding-top: 12vh;
-    pointer-events: auto;
+    pointer-events: none;
   }
 
   .hero__kicker,
