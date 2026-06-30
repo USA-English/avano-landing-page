@@ -49,29 +49,7 @@
     }
 
     float cycleForm(float delay) {
-      if (uReducedMotion > 0.5) {
-        return 1.0;
-      }
-
-      float phase = mod(uTime, ${TIMING.total.toFixed(1)});
-      float resolveStart = ${TIMING.cloud.toFixed(1)};
-      float formedStart = ${TIMING.cloud + TIMING.resolve}.0;
-      float dissolveStart = ${TIMING.cloud + TIMING.resolve + TIMING.formed}.0;
-      float transitionDuration = ${TIMING.resolve - TIMING.stagger}.0;
-
-      if (phase < resolveStart) {
-        return 0.0;
-      }
-
-      if (phase < formedStart) {
-        return easeCubic(clamp((phase - resolveStart - delay) / transitionDuration, 0.0, 1.0));
-      }
-
-      if (phase < dissolveStart) {
-        return 1.0;
-      }
-
-      return 1.0 - easeCubic(clamp((phase - dissolveStart - delay) / transitionDuration, 0.0, 1.0));
+      return 0.0;
     }
 
     mat2 rotate2d(float angle) {
@@ -294,10 +272,10 @@
   }
 
   function buildCloudTargets() {
-    const centerX = width * 0.72;
-    const centerY = height * 0.29;
-    const radiusX = Math.min(width * 0.29, 430);
-    const radiusY = Math.min(height * 0.31, 300);
+    const centerX = width * 0.5;
+    const centerY = height * 0.5;
+    const radiusX = width * 0.62;
+    const radiusY = height * 0.62;
     const cloud = new Float32Array(PARTICLE_COUNT * 2);
 
     for (let i = 0; i < PARTICLE_COUNT; i += 1) {
@@ -306,13 +284,16 @@
         0.9 +
         Math.sin(spec.angle * 2.4 + spec.seed) * 0.16 +
         Math.sin(spec.angle * 5.1 - spec.seed * 0.37) * 0.12;
-      const density = spec.radius * organicEdge;
-      const upperLift = Math.sin(spec.angle - 0.65) > 0 ? 0.9 : 1.08;
-      const skew = (spec.skew - 0.5) * radiusX * 0.14 * density;
-
-      cloud[i * 2] = centerX + Math.cos(spec.angle) * radiusX * density + skew;
-      cloud[i * 2 + 1] =
+      const density = Math.min(1.18, spec.radius * organicEdge);
+      const upperLift = Math.sin(spec.angle - 0.65) > 0 ? 0.92 : 1.06;
+      const skew = (spec.skew - 0.5) * radiusX * 0.1 * density;
+      const x =
+        centerX + Math.cos(spec.angle) * radiusX * density + skew;
+      const y =
         centerY + Math.sin(spec.angle) * radiusY * density * upperLift;
+
+      cloud[i * 2] = clamp(x, width * 0.025, width * 0.975);
+      cloud[i * 2 + 1] = clamp(y, height * 0.025, height * 0.975);
     }
 
     return cloud;
@@ -404,7 +385,7 @@
     createParticleSpecs();
 
     const cloudData = buildCloudTargets();
-    const sampledTargets = logoReady ? sampleLogoTargets() : [];
+    const sampledTargets = [];
     const targetData = new Float32Array(PARTICLE_COUNT * 2);
     const colorData = new Float32Array(PARTICLE_COUNT * 3);
     const metaData = new Float32Array(PARTICLE_COUNT * 4);
@@ -455,7 +436,7 @@
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.useProgram(program);
     gl.uniform2f(gl.getUniformLocation(program, "uResolution"), width, height);
-    gl.uniform2f(gl.getUniformLocation(program, "uCloudCenter"), width * 0.72, height * 0.29);
+    gl.uniform2f(gl.getUniformLocation(program, "uCloudCenter"), width * 0.5, height * 0.5);
     gl.uniform2f(gl.getUniformLocation(program, "uPointer"), pointer.x, pointer.y);
     gl.uniform1f(gl.getUniformLocation(program, "uTime"), now);
     gl.uniform1f(gl.getUniformLocation(program, "uDpr"), dpr);
