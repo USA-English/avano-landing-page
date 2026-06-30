@@ -173,15 +173,6 @@ a {
   background: var(--background);
 }
 
-.hero::before {
-  position: absolute;
-  inset: auto 8vw 4.5rem 8vw;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--soft-gold), transparent);
-  content: "";
-  pointer-events: none;
-}
-
 #avano-field {
   position: absolute;
   inset: 0;
@@ -224,85 +215,85 @@ a {
 .hero__frame {
   position: relative;
   z-index: 2;
-  display: grid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   min-height: 100svh;
-  grid-template-rows: auto 1fr auto;
-  padding: clamp(1.25rem, 3vw, 2rem);
+  padding: clamp(2rem, 4vw, 4.25rem);
   pointer-events: none;
 }
 
-.hero__intro {
-  position: absolute;
-  inset: 0;
+.hero__copy {
+  display: flex;
+  width: min(92vw, 72rem);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
   pointer-events: none;
 }
 
 .hero__opening-title,
 .hero__opening-subtitle,
-.hero__bridge {
-  position: absolute;
-  left: clamp(4.2rem, 6.4vw, 6.9rem);
-  width: min(42vw, 44.5rem);
+.hero__bridge,
+.hero__closing {
   margin: 0;
 }
 
 .hero__opening-title {
-  top: clamp(3.9rem, 4.7vw, 5.1rem);
   color: var(--navy);
   font-family: var(--font-title);
-  font-size: clamp(2.05rem, 2.55vw, 3.05rem);
+  font-size: clamp(2.4rem, 4.3vw, 4.7rem);
   font-weight: 500;
   line-height: 0.98;
 }
 
 .hero__opening-subtitle {
-  top: clamp(7.2rem, 8.3vw, 9rem);
+  margin-top: clamp(0.5rem, 1vh, 0.75rem);
   color: color-mix(in srgb, var(--navy) 84%, var(--gold));
   font-family: var(--font-secondary);
-  font-size: clamp(0.9rem, 1.05vw, 1.1rem);
+  font-size: clamp(0.95rem, 1.2vw, 1.2rem);
   font-weight: 500;
   line-height: 1.45;
   letter-spacing: 0.08em;
 }
 
-.hero__title {
-  position: absolute;
-  top: clamp(11.5rem, 16vh, 14.2rem);
-  left: clamp(4.2rem, 6.4vw, 6.9rem);
-  width: min(42vw, 44.5rem);
+.hero__headline {
+  width: min(100%, 68rem);
   max-width: none;
-  margin: 0;
+  margin: clamp(1.7rem, 4.4vh, 3.2rem) 0 0;
   color: var(--navy);
   font-family: var(--font-title);
-  font-size: clamp(3.35rem, 4.85vw, 5.9rem);
+  font-size: clamp(3.6rem, 7.2vw, 8rem);
   font-weight: 600;
-  line-height: 0.86;
+  line-height: 0.82;
 }
 
 .hero__bridge {
-  top: clamp(32.8rem, 55.5vh, 36.5rem);
-  width: min(42vw, 44.5rem);
+  width: min(100%, 58rem);
+  margin-top: clamp(1rem, 2.5vh, 1.75rem);
   color: var(--gold);
   font-family: var(--font-secondary);
-  font-size: clamp(1.02rem, 1.22vw, 1.32rem);
+  font-size: clamp(1rem, 1.45vw, 1.45rem);
   font-weight: 600;
   line-height: 1.35;
   letter-spacing: 0.08em;
 }
 
-.hero__closing {
-  position: absolute;
-  right: clamp(4.2rem, 6.9vw, 7.2rem);
-  bottom: clamp(6.5rem, 13.4vh, 8.2rem);
-  width: min(34vw, 34rem);
-  pointer-events: none;
+.hero__logo {
+  display: block;
+  width: min(42vw, 31rem);
+  min-width: 15rem;
+  margin-top: clamp(1.15rem, 3.2vh, 2.25rem);
+  object-fit: contain;
 }
 
-.hero__closing h2 {
-  max-width: none;
+.hero__closing {
+  width: min(100%, 50rem);
+  margin-top: clamp(1.15rem, 3vh, 2rem);
   color: color-mix(in srgb, var(--navy) 88%, var(--gold));
   font-family: var(--font-title);
-  font-size: clamp(1.45rem, 1.9vw, 2.3rem);
+  font-size: clamp(1.45rem, 2.35vw, 2.6rem);
   font-weight: 400;
   line-height: 1.06;
   letter-spacing: 0;
@@ -332,6 +323,10 @@ a {
 
 .reveal--fifth {
   animation-delay: 5.85s;
+}
+
+.reveal--sixth {
+  animation-delay: 6.65s;
 }
 
 .content-section {
@@ -398,33 +393,23 @@ p {
 }
 
 @media (max-width: 720px) {
-  .hero__intro {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    align-self: start;
-    width: min(100%, 28rem);
-    padding-top: 12vh;
-    pointer-events: none;
+  .hero__frame {
+    align-items: start;
+    padding: 5.5rem 1.25rem 3.5rem;
   }
 
-  .hero__opening-title,
-  .hero__opening-subtitle,
-  .hero__bridge,
-  .hero__title {
-    position: static;
-    width: auto;
-    max-width: none;
+  .hero__copy {
+    width: min(100%, 30rem);
+    margin: 0 auto;
   }
 
-  .hero__title {
-    font-size: clamp(2.4rem, 12vw, 4.25rem);
-    line-height: 0.9;
+  .hero__headline {
+    font-size: clamp(3rem, 13vw, 5.1rem);
+    line-height: 0.86;
   }
 
   .hero__opening-title {
-    font-size: clamp(1.8rem, 8.5vw, 3rem);
+    font-size: clamp(2rem, 9.5vw, 3.25rem);
   }
 
   .hero__bridge {
@@ -432,15 +417,12 @@ p {
   }
 
   .hero__closing {
-    right: clamp(1.25rem, 6vw, 2rem);
-    bottom: 5.5rem;
-    left: clamp(1.25rem, 6vw, 2rem);
-    width: auto;
-  }
-
-  .hero__closing h2 {
     font-size: clamp(1.35rem, 6.6vw, 2.3rem);
     line-height: 1.02;
+  }
+
+  .hero__logo {
+    width: min(78vw, 22rem);
   }
 }
 
