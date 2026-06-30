@@ -1,6 +1,7 @@
 (() => {
   const LOGO_PATH = "./uploads/avano-animation-svg.svg";
   const PARTICLE_COUNT = 11000;
+  const MAX_EXCLUSION_RECTS = 6;
   const BACKGROUND = { r: 248, g: 247, b: 244 };
   const BRAND_COLORS = [
     { hex: "#11325b", r: 17 / 255, g: 50 / 255, b: 91 / 255 },
@@ -32,6 +33,8 @@
     uniform float uPointerEnergy;
     uniform float uPointerCoreRadius;
     uniform float uPointerFieldRadius;
+    uniform float uExclusionCount;
+    uniform vec4 uExclusionRects[${MAX_EXCLUSION_RECTS}];
     uniform float uReducedMotion;
 
     varying vec3 vColor;
@@ -56,6 +59,46 @@
       float s = sin(angle);
       float c = cos(angle);
       return mat2(c, -s, s, c);
+    }
+
+    vec2 repelFromExclusionRects(vec2 position) {
+      for (int i = 0; i < ${MAX_EXCLUSION_RECTS}; i += 1) {
+        if (float(i) >= uExclusionCount) {
+          continue;
+        }
+
+        vec4 rect = uExclusionRects[i];
+        vec2 rectMin = rect.xy;
+        vec2 rectMax = rect.xy + rect.zw;
+        vec2 center = (rectMin + rectMax) * 0.5;
+        vec2 halfSize = max((rectMax - rectMin) * 0.5, vec2(1.0));
+        vec2 local = position - center;
+        vec2 gap = abs(local) - halfSize;
+
+        if (gap.x < 0.0 && gap.y < 0.0) {
+          vec2 edgeDistance = halfSize - abs(local);
+          vec2 axis = edgeDistance.x < edgeDistance.y
+            ? vec2(sign(local.x), 0.0)
+            : vec2(0.0, sign(local.y));
+
+          if (length(axis) < 0.1) {
+            axis = vec2(0.0, -1.0);
+          }
+
+          position += axis * (min(edgeDistance.x, edgeDistance.y) + 34.0);
+        } else {
+          vec2 closest = clamp(position, rectMin, rectMax);
+          vec2 delta = position - closest;
+          float distanceToRect = length(delta);
+          float field = 1.0 - smoothstep(0.0, 58.0, distanceToRect);
+
+          if (field > 0.0 && distanceToRect > 0.01) {
+            position += normalize(delta) * field * 26.0;
+          }
+        }
+      }
+
+      return position;
     }
 
     void main() {
@@ -107,6 +150,7 @@
       float movingSwirl = swirlRing * mix(5.0, 34.0 + uPointerEnergy * 38.0, cloudWeight);
       position += pointerDirection * persistentPush * pointerEffect * depthResponse;
       position += pointerTangent * movingSwirl * pointerEffect * (0.62 + depth * 0.72);
+      position = repelFromExclusionRects(position);
 
       float breathingPulse = 0.5 + 0.5 * sin(time * 0.85 + seed);
       float sparkle =
@@ -183,6 +227,8 @@
   let targetBuffer = null;
   let colorBuffer = null;
   let metaBuffer = null;
+  let exclusionRectCount = 0;
+  const exclusionRects = new Float32Array(MAX_EXCLUSION_RECTS * 4);
 
   const pointer = {
     x: -10000,
@@ -196,6 +242,67 @@
 
   const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
   const lerp = (a, b, t) => a + (b - a) * t;
+
+  function updateExclusionRects() {
+    exclusionRects.fill(0);
+
+    const protectedElements = Array.from(
+      document.querySelectorAll(".hero__copy .reveal")
+    ).slice(0, MAX_EXCLUSION_RECTS);
+    const padX = clamp(width * 0.018, 18, 34);
+    const padY = clamp(height * 0.018, 14, 30);
+
+    exclusionRectCount = protectedElements.length;
+
+    protectedElements.forEach((element, index) => {
+      const rect = element.getBoundingClientRect();
+      const offset = index * 4;
+      const left = clamp(rect.left - padX, 0, width);
+      const top = clamp(rect.top - padY, 0, height);
+      const right = clamp(rect.right + padX, 0, width);
+      const bottom = clamp(rect.bottom + padY, 0, height);
+
+      exclusionRects[offset] = left;
+      exclusionRects[offset + 1] = top;
+      exclusionRects[offset + 2] = Math.max(0, right - left);
+      exclusionRects[offset + 3] = Math.max(0, bottom - top);
+    });
+  }
+
+  function pushOutOfExclusionRects(x, y) {
+    let nextX = x;
+    let nextY = y;
+
+    for (let i = 0; i < exclusionRectCount; i += 1) {
+      const offset = i * 4;
+      const left = exclusionRects[offset];
+      const top = exclusionRects[offset + 1];
+      const right = left + exclusionRects[offset + 2];
+      const bottom = top + exclusionRects[offset + 3];
+
+      if (nextX < left || nextX > right || nextY < top || nextY > bottom) {
+        continue;
+      }
+
+      const distances = [
+        { axis: "x", value: left - 18, distance: Math.abs(nextX - left) },
+        { axis: "x", value: right + 18, distance: Math.abs(right - nextX) },
+        { axis: "y", value: top - 18, distance: Math.abs(nextY - top) },
+        { axis: "y", value: bottom + 18, distance: Math.abs(bottom - nextY) }
+      ].sort((a, b) => a.distance - b.distance);
+
+      if (distances[0].axis === "x") {
+        nextX = distances[0].value;
+      } else {
+        nextY = distances[0].value;
+      }
+    }
+
+    return {
+      x: clamp(nextX, width * 0.025, width * 0.975),
+      y: clamp(nextY, height * 0.025, height * 0.975)
+    };
+  }
 
   function colorDistance(pixel, color) {
     return (
@@ -291,9 +398,10 @@
         centerX + Math.cos(spec.angle) * radiusX * density + skew;
       const y =
         centerY + Math.sin(spec.angle) * radiusY * density * upperLift;
+      const protectedPoint = pushOutOfExclusionRects(x, y);
 
-      cloud[i * 2] = clamp(x, width * 0.025, width * 0.975);
-      cloud[i * 2 + 1] = clamp(y, height * 0.025, height * 0.975);
+      cloud[i * 2] = protectedPoint.x;
+      cloud[i * 2 + 1] = protectedPoint.y;
     }
 
     return cloud;
@@ -423,6 +531,7 @@
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
     gl.viewport(0, 0, canvas.width, canvas.height);
+    updateExclusionRects();
     rebuildField();
   }
 
@@ -444,6 +553,8 @@
     gl.uniform1f(gl.getUniformLocation(program, "uPointerEnergy"), pointer.energy);
     gl.uniform1f(gl.getUniformLocation(program, "uPointerCoreRadius"), pointerCoreRadius);
     gl.uniform1f(gl.getUniformLocation(program, "uPointerFieldRadius"), pointerFieldRadius);
+    gl.uniform1f(gl.getUniformLocation(program, "uExclusionCount"), exclusionRectCount);
+    gl.uniform4fv(gl.getUniformLocation(program, "uExclusionRects[0]"), exclusionRects);
     gl.uniform1f(gl.getUniformLocation(program, "uReducedMotion"), reducedMotion ? 1 : 0);
     gl.drawArrays(gl.POINTS, 0, PARTICLE_COUNT);
 
