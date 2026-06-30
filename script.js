@@ -52,7 +52,29 @@
     }
 
     float cycleForm(float delay) {
-      return 0.0;
+      if (uReducedMotion > 0.5) {
+        return 1.0;
+      }
+
+      float phase = mod(uTime, ${TIMING.total.toFixed(1)});
+      float resolveStart = ${TIMING.cloud.toFixed(1)};
+      float formedStart = ${TIMING.cloud + TIMING.resolve}.0;
+      float dissolveStart = ${TIMING.cloud + TIMING.resolve + TIMING.formed}.0;
+      float transitionDuration = ${TIMING.resolve - TIMING.stagger}.0;
+
+      if (phase < resolveStart) {
+        return 0.0;
+      }
+
+      if (phase < formedStart) {
+        return easeCubic(clamp((phase - resolveStart - delay) / transitionDuration, 0.0, 1.0));
+      }
+
+      if (phase < dissolveStart) {
+        return 1.0;
+      }
+
+      return 1.0 - easeCubic(clamp((phase - dissolveStart - delay) / transitionDuration, 0.0, 1.0));
     }
 
     mat2 rotate2d(float angle) {
@@ -150,7 +172,6 @@
       float movingSwirl = swirlRing * mix(5.0, 34.0 + uPointerEnergy * 38.0, cloudWeight);
       position += pointerDirection * persistentPush * pointerEffect * depthResponse;
       position += pointerTangent * movingSwirl * pointerEffect * (0.62 + depth * 0.72);
-      position = repelFromExclusionRects(position);
 
       float breathingPulse = 0.5 + 0.5 * sin(time * 0.85 + seed);
       float sparkle =
@@ -379,10 +400,10 @@
   }
 
   function buildCloudTargets() {
-    const centerX = width * 0.5;
-    const centerY = height * 0.5;
-    const radiusX = width * 0.62;
-    const radiusY = height * 0.62;
+    const centerX = width * 0.72;
+    const centerY = height * 0.29;
+    const radiusX = Math.min(width * 0.29, 430);
+    const radiusY = Math.min(height * 0.31, 300);
     const cloud = new Float32Array(PARTICLE_COUNT * 2);
 
     for (let i = 0; i < PARTICLE_COUNT; i += 1) {
@@ -398,13 +419,32 @@
         centerX + Math.cos(spec.angle) * radiusX * density + skew;
       const y =
         centerY + Math.sin(spec.angle) * radiusY * density * upperLift;
-      const protectedPoint = pushOutOfExclusionRects(x, y);
 
-      cloud[i * 2] = protectedPoint.x;
-      cloud[i * 2 + 1] = protectedPoint.y;
+      cloud[i * 2] = x;
+      cloud[i * 2 + 1] = y;
     }
 
     return cloud;
+  }
+
+  function buildLogoPointTargets() {
+    const targetData = new Float32Array(PARTICLE_COUNT * 2);
+    const logoElement = document.querySelector(".hero__logo");
+    const rect = logoElement?.getBoundingClientRect();
+    const centerX = rect ? rect.left + rect.width * 0.5 : width * 0.28;
+    const centerY = rect ? rect.top + rect.height * 0.5 : height * 0.66;
+    const coreRadius = clamp(Math.min(width, height) * 0.018, 10, 22);
+
+    for (let i = 0; i < PARTICLE_COUNT; i += 1) {
+      const spec = particleSpecs[i];
+      const radius = coreRadius * Math.sqrt(spec.radius) * (0.25 + spec.depth * 0.75);
+      const angle = spec.angle + spec.seed * 0.013;
+
+      targetData[i * 2] = centerX + Math.cos(angle) * radius;
+      targetData[i * 2 + 1] = centerY + Math.sin(angle) * radius;
+    }
+
+    return targetData;
   }
 
   function pickTargets(pool) {
@@ -493,19 +533,15 @@
     createParticleSpecs();
 
     const cloudData = buildCloudTargets();
-    const sampledTargets = [];
-    const targetData = new Float32Array(PARTICLE_COUNT * 2);
+    const targetData = buildLogoPointTargets();
     const colorData = new Float32Array(PARTICLE_COUNT * 3);
     const metaData = new Float32Array(PARTICLE_COUNT * 4);
 
     for (let i = 0; i < PARTICLE_COUNT; i += 1) {
       const spec = particleSpecs[i];
-      const target = sampledTargets[i];
-      const colorIndex = target ? target.color : spec.color;
+      const colorIndex = spec.color;
       const color = BRAND_COLORS[colorIndex];
 
-      targetData[i * 2] = target ? target.x : cloudData[i * 2];
-      targetData[i * 2 + 1] = target ? target.y : cloudData[i * 2 + 1];
       colorData[i * 3] = color.r;
       colorData[i * 3 + 1] = color.g;
       colorData[i * 3 + 2] = color.b;
@@ -531,7 +567,7 @@
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
     gl.viewport(0, 0, canvas.width, canvas.height);
-    updateExclusionRects();
+    exclusionRectCount = 0;
     rebuildField();
   }
 
@@ -545,7 +581,7 @@
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.useProgram(program);
     gl.uniform2f(gl.getUniformLocation(program, "uResolution"), width, height);
-    gl.uniform2f(gl.getUniformLocation(program, "uCloudCenter"), width * 0.5, height * 0.5);
+    gl.uniform2f(gl.getUniformLocation(program, "uCloudCenter"), width * 0.72, height * 0.29);
     gl.uniform2f(gl.getUniformLocation(program, "uPointer"), pointer.x, pointer.y);
     gl.uniform1f(gl.getUniformLocation(program, "uTime"), now);
     gl.uniform1f(gl.getUniformLocation(program, "uDpr"), dpr);
