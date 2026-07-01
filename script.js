@@ -134,7 +134,7 @@
       float time = uTime * 0.001;
 
       vec2 cloudOffset = aCloud - uCloudCenter;
-      float cloudRotation = uTime * 0.000035 * cloudWeight;
+      float cloudRotation = sin(uTime * 0.00042) * 0.2 * cloudWeight;
       vec2 rotatedCloud = uCloudCenter + rotate2d(cloudRotation) * cloudOffset;
 
       vec2 cloudBreath = vec2(
@@ -401,7 +401,7 @@
 
   function buildCloudTargets() {
     const centerX = width * 0.72;
-    const centerY = height * 0.29;
+    const centerY = height * 0.5;
     const radiusX = Math.min(width * 0.29, 430);
     const radiusY = Math.min(height * 0.31, 300);
     const cloud = new Float32Array(PARTICLE_COUNT * 2);
@@ -581,7 +581,7 @@
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.useProgram(program);
     gl.uniform2f(gl.getUniformLocation(program, "uResolution"), width, height);
-    gl.uniform2f(gl.getUniformLocation(program, "uCloudCenter"), width * 0.72, height * 0.29);
+    gl.uniform2f(gl.getUniformLocation(program, "uCloudCenter"), width * 0.72, height * 0.5);
     gl.uniform2f(gl.getUniformLocation(program, "uPointer"), pointer.x, pointer.y);
     gl.uniform1f(gl.getUniformLocation(program, "uTime"), now);
     gl.uniform1f(gl.getUniformLocation(program, "uDpr"), dpr);
