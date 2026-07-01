@@ -8,7 +8,7 @@
     { hex: "#b38a49", r: 179 / 255, g: 138 / 255, b: 73 / 255 }
   ];
   const TIMING = {
-    cloud: 5000,
+    cloud: 10000,
     resolve: 500,
     formed: 5000,
     dissolve: 500,
