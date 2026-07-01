@@ -52,29 +52,7 @@
     }
 
     float cycleForm(float delay) {
-      if (uReducedMotion > 0.5) {
-        return 1.0;
-      }
-
-      float phase = mod(uTime, ${TIMING.total.toFixed(1)});
-      float resolveStart = ${TIMING.cloud.toFixed(1)};
-      float formedStart = ${TIMING.cloud + TIMING.resolve}.0;
-      float dissolveStart = ${TIMING.cloud + TIMING.resolve + TIMING.formed}.0;
-      float transitionDuration = ${TIMING.resolve - TIMING.stagger}.0;
-
-      if (phase < resolveStart) {
-        return 0.0;
-      }
-
-      if (phase < formedStart) {
-        return easeCubic(clamp((phase - resolveStart - delay) / transitionDuration, 0.0, 1.0));
-      }
-
-      if (phase < dissolveStart) {
-        return 1.0;
-      }
-
-      return 1.0 - easeCubic(clamp((phase - dissolveStart - delay) / transitionDuration, 0.0, 1.0));
+      return 0.0;
     }
 
     mat2 rotate2d(float angle) {
@@ -158,7 +136,7 @@
       float pointerDistance = length(pointerDelta);
       vec2 pointerDirection = pointerDistance > 0.01 ? pointerDelta / pointerDistance : vec2(0.0, 0.0);
       vec2 pointerTangent = vec2(-pointerDirection.y, pointerDirection.x);
-      float pointerCoreRadius = uPointerCoreRadius * mix(0.42, 1.55, cloudWeight);
+      float pointerCoreRadius = uPointerCoreRadius * mix(0.32, 0.88, cloudWeight);
       float pointerFieldRadius = uPointerFieldRadius * mix(0.5, 1.4, cloudWeight);
       float pointerEffect = uPointerPresence * mix(0.12, 1.15, cloudWeight);
       float pointerHolePresence = uPointerPresence * smoothstep(0.15, 0.85, cloudWeight);
@@ -168,7 +146,7 @@
         smoothstep(pointerCoreRadius * 0.45, pointerCoreRadius, pointerDistance) *
         (1.0 - smoothstep(pointerCoreRadius * 1.15, pointerFieldRadius, pointerDistance));
       float depthResponse = 0.72 + depth * 0.7;
-      float persistentPush = coreHole * mix(18.0, 118.0, cloudWeight) + fieldWarp * mix(8.0, 52.0, cloudWeight);
+      float persistentPush = coreHole * mix(12.0, 74.0, cloudWeight) + fieldWarp * mix(8.0, 52.0, cloudWeight);
       float movingSwirl = swirlRing * mix(5.0, 34.0 + uPointerEnergy * 38.0, cloudWeight);
       position += pointerDirection * persistentPush * pointerEffect * depthResponse;
       position += pointerTangent * movingSwirl * pointerEffect * (0.62 + depth * 0.72);
@@ -182,7 +160,7 @@
       float stateAlpha = mix(0.76, 0.96, form);
       float travelAlpha = 1.0 + travel * 0.16;
       float cloudVisibility = 1.0 + cloudWeight * 0.42;
-      float holeFade = clamp(coreHole * 0.92 + fieldWarp * 0.22, 0.0, 0.94) * pointerHolePresence;
+      float holeFade = clamp(coreHole * 0.7 + fieldWarp * 0.08, 0.0, 0.72) * pointerHolePresence;
 
       vec2 clip = (position / uResolution) * 2.0 - 1.0;
       gl_Position = vec4(clip.x, -clip.y, 0.0, 1.0);
@@ -575,7 +553,7 @@
     pointer.presence = lerp(pointer.presence, pointer.active ? 1 : 0, 0.12);
     pointer.energy *= 0.9;
 
-    const pointerCoreRadius = clamp(Math.min(width, height) * 0.16, 120, 210);
+    const pointerCoreRadius = clamp(Math.min(width, height) * 0.09, 70, 130);
     const pointerFieldRadius = clamp(Math.min(width, height) * 0.28, 220, 380);
 
     gl.clear(gl.COLOR_BUFFER_BIT);
