@@ -381,10 +381,10 @@
   }
 
   function buildCloudTargets() {
-    const centerX = width * 0.795;
-    const centerY = height * 0.52;
-    const radiusX = Math.min(height * 0.44, 430);
-    const radiusY = Math.min(width * 0.18, 300);
+    const centerX = width * 0.775;
+    const centerY = height * 0.5;
+    const radiusX = Math.min(height * 0.49, 470);
+    const radiusY = Math.min(width * 0.23, 390);
     const cloud = new Float32Array(PARTICLE_COUNT * 2);
 
     for (let i = 0; i < PARTICLE_COUNT; i += 1) {
@@ -572,7 +572,7 @@
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.useProgram(program);
     gl.uniform2f(gl.getUniformLocation(program, "uResolution"), width, height);
-    gl.uniform2f(gl.getUniformLocation(program, "uCloudCenter"), width * 0.795, height * 0.52);
+    gl.uniform2f(gl.getUniformLocation(program, "uCloudCenter"), width * 0.775, height * 0.5);
     gl.uniform2f(gl.getUniformLocation(program, "uPointer"), pointer.x, pointer.y);
     gl.uniform1f(gl.getUniformLocation(program, "uTime"), now);
     gl.uniform1f(gl.getUniformLocation(program, "uDpr"), dpr);
