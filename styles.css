@@ -284,7 +284,8 @@ a {
   display: block;
   width: min(32vw, 22rem);
   min-width: 11rem;
-  margin-top: clamp(0.8rem, 2vh, 1.3rem);
+  align-self: center;
+  margin-top: clamp(0.8rem, 2vh, 1.25rem);
   padding: clamp(0.35rem, 1vw, 0.8rem);
   background: var(--background);
   object-fit: contain;
@@ -292,7 +293,7 @@ a {
 
 .hero__closing {
   width: min(100%, 36rem);
-  margin-top: clamp(0.75rem, 1.8vh, 1.2rem);
+  margin-top: clamp(0.95rem, 2.2vh, 1.4rem);
   color: color-mix(in srgb, var(--navy) 88%, var(--gold));
   font-family: var(--font-title);
   font-size: clamp(1rem, 1.75vw, 1.85rem);
