@@ -112,13 +112,16 @@
       float time = uTime * 0.001;
 
       vec2 cloudOffset = aCloud - uCloudCenter;
-      float cloudRotation = sin(uTime * 0.00042) * 0.2 * cloudWeight;
-      vec2 rotatedCloud = uCloudCenter + rotate2d(cloudRotation) * cloudOffset;
+      vec2 rotatedCloud = aCloud;
+      vec2 cloudTangent = length(cloudOffset) > 0.01
+        ? normalize(vec2(-cloudOffset.y, cloudOffset.x))
+        : vec2(0.0, 0.0);
+      float internalFlow = sin(time * 0.55 + seed * 0.47) * (1.4 + depth * 2.4);
 
       vec2 cloudBreath = vec2(
-        sin(time * 0.42 + seed * 1.73),
-        cos(time * 0.36 + seed * 1.21)
-      ) * (2.0 + depth * 7.0) * cloudWeight;
+        sin(time * 0.34 + seed * 1.73),
+        cos(time * 0.29 + seed * 1.21)
+      ) * (1.2 + depth * 4.4) * cloudWeight + cloudTangent * internalFlow * cloudWeight;
 
       vec2 logoBreath = vec2(
         sin(time * 0.24 + seed * 0.93),
@@ -378,25 +381,33 @@
   }
 
   function buildCloudTargets() {
-    const centerX = width * 0.72;
+    const centerX = width * 0.735;
     const centerY = height * 0.5;
-    const radiusX = Math.min(width * 0.29, 430);
-    const radiusY = Math.min(height * 0.31, 300);
+    const radiusX = Math.min(width * 0.31, 460);
+    const radiusY = Math.min(height * 0.34, 340);
     const cloud = new Float32Array(PARTICLE_COUNT * 2);
 
     for (let i = 0; i < PARTICLE_COUNT; i += 1) {
       const spec = particleSpecs[i];
-      const organicEdge =
-        0.9 +
-        Math.sin(spec.angle * 2.4 + spec.seed) * 0.16 +
-        Math.sin(spec.angle * 5.1 - spec.seed * 0.37) * 0.12;
-      const density = Math.min(1.18, spec.radius * organicEdge);
-      const upperLift = Math.sin(spec.angle - 0.65) > 0 ? 0.92 : 1.06;
-      const skew = (spec.skew - 0.5) * radiusX * 0.1 * density;
-      const x =
-        centerX + Math.cos(spec.angle) * radiusX * density + skew;
-      const y =
-        centerY + Math.sin(spec.angle) * radiusY * density * upperLift;
+      const angle = spec.angle + Math.sin(spec.seed * 0.31) * 0.18;
+      const shell = spec.radius ** 0.72;
+      const rim = 0.74 + Math.sin(angle * 2.1 + spec.seed) * 0.1;
+      const nose = Math.max(0, Math.cos(angle - 0.08));
+      const tail = Math.max(0, Math.cos(angle - 3.72));
+      const lowerWing = Math.max(0, Math.cos(angle - 2.24));
+      const upperWing = Math.max(0, Math.cos(angle - 4.95));
+      const xBase =
+        Math.cos(angle) * radiusX * shell * rim +
+        nose * radiusX * 0.18 * shell -
+        tail * radiusX * 0.22 * (0.35 + shell);
+      const yBase =
+        Math.sin(angle) * radiusY * shell * (0.78 + nose * 0.18) +
+        lowerWing * radiusY * 0.18 * shell -
+        upperWing * radiusY * 0.12 * shell;
+      const bend = ((xBase / radiusX) ** 2) * radiusY * 0.2 - radiusY * 0.07;
+      const grain = (spec.skew - 0.5) * (8 + shell * 18);
+      const x = centerX + xBase + grain;
+      const y = centerY + yBase + bend + Math.sin(spec.seed * 0.19) * 8 * shell;
 
       cloud[i * 2] = x;
       cloud[i * 2 + 1] = y;
@@ -559,7 +570,7 @@
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.useProgram(program);
     gl.uniform2f(gl.getUniformLocation(program, "uResolution"), width, height);
-    gl.uniform2f(gl.getUniformLocation(program, "uCloudCenter"), width * 0.72, height * 0.5);
+    gl.uniform2f(gl.getUniformLocation(program, "uCloudCenter"), width * 0.735, height * 0.5);
     gl.uniform2f(gl.getUniformLocation(program, "uPointer"), pointer.x, pointer.y);
     gl.uniform1f(gl.getUniformLocation(program, "uTime"), now);
     gl.uniform1f(gl.getUniformLocation(program, "uDpr"), dpr);
