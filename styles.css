@@ -294,11 +294,11 @@ a {
 .hero__closing {
   width: min(100%, 36rem);
   margin-top: clamp(0.95rem, 2.2vh, 1.4rem);
-  color: color-mix(in srgb, var(--navy) 88%, var(--gold));
+  color: var(--navy);
   font-family: var(--font-title);
-  font-size: clamp(1rem, 1.75vw, 1.85rem);
-  font-weight: 400;
-  line-height: 1;
+  font-size: clamp(1.65rem, 3.1vw, 3.2rem);
+  font-weight: 500;
+  line-height: 0.95;
   letter-spacing: 0;
 }
 
@@ -417,8 +417,8 @@ p {
   }
 
   .hero__closing {
-    font-size: clamp(1rem, 4.5vw, 1.55rem);
-    line-height: 1;
+    font-size: clamp(1.65rem, 7vw, 2.55rem);
+    line-height: 0.95;
   }
 
   .hero__logo {
