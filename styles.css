@@ -282,10 +282,10 @@ a {
 
 .hero__logo {
   display: block;
-  width: min(32vw, 22rem);
-  min-width: 11rem;
+  width: min(44vw, 38rem);
+  min-width: 24rem;
   align-self: center;
-  margin-top: clamp(0.8rem, 2vh, 1.25rem);
+  margin-top: clamp(0.7rem, 1.8vh, 1.15rem);
   padding: clamp(0.35rem, 1vw, 0.8rem);
   background: var(--background);
   object-fit: contain;
@@ -422,7 +422,8 @@ p {
   }
 
   .hero__logo {
-    width: min(64vw, 16rem);
+    width: min(88vw, 24rem);
+    min-width: 0;
   }
 }
 
