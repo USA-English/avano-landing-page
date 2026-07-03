@@ -116,12 +116,14 @@
       vec2 cloudTangent = length(cloudOffset) > 0.01
         ? normalize(vec2(-cloudOffset.y, cloudOffset.x))
         : vec2(0.0, 0.0);
-      float internalFlow = sin(time * 0.55 + seed * 0.47) * (1.4 + depth * 2.4);
+      float internalFlow =
+        sin(time * 0.95 + seed * 0.47) * (2.4 + depth * 4.8) +
+        sin(time * 1.35 + seed * 1.13) * (0.9 + depth * 1.8);
 
       vec2 cloudBreath = vec2(
-        sin(time * 0.34 + seed * 1.73),
-        cos(time * 0.29 + seed * 1.21)
-      ) * (1.2 + depth * 4.4) * cloudWeight + cloudTangent * internalFlow * cloudWeight;
+        sin(time * 0.72 + seed * 1.73),
+        cos(time * 0.66 + seed * 1.21)
+      ) * (2.2 + depth * 6.4) * cloudWeight + cloudTangent * internalFlow * cloudWeight;
 
       vec2 logoBreath = vec2(
         sin(time * 0.24 + seed * 0.93),
