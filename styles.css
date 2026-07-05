@@ -248,6 +248,10 @@ a {
   line-height: 0.95;
 }
 
+.keep-line {
+  white-space: nowrap;
+}
+
 .hero__opening-subtitle {
   margin-top: clamp(0.25rem, 0.7vh, 0.5rem);
   color: color-mix(in srgb, var(--navy) 84%, var(--gold));
@@ -337,7 +341,6 @@ a {
   min-height: 100svh;
   place-items: center;
   padding: 7rem clamp(1.25rem, 5vw, 5rem);
-  border-top: 1px solid rgba(17, 50, 91, 0.08);
   background: var(--background);
 }
 
@@ -393,7 +396,6 @@ p {
   min-height: 100svh;
   place-items: center;
   padding: clamp(4.5rem, 8vw, 8rem) clamp(1.25rem, 6vw, 6rem);
-  border-top: 1px solid rgba(17, 50, 91, 0.08);
   background: var(--background);
 }
 
@@ -531,7 +533,7 @@ p {
   }
 
   .hero__opening-title {
-    font-size: clamp(1.65rem, 7vw, 2.55rem);
+    font-size: clamp(1.65rem, 6.45vw, 2.35rem);
   }
 
   .hero__opening-subtitle {
