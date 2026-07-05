@@ -413,9 +413,9 @@ p {
   max-width: 14ch;
   color: var(--navy);
   font-family: var(--font-title);
-  font-size: clamp(3rem, 6.8vw, 7rem);
+  font-size: clamp(2.35rem, 4.7vw, 5.1rem);
   font-weight: 600;
-  line-height: 0.92;
+  line-height: 0.88;
 }
 
 .copy-section--wide .copy-section__title {
@@ -559,7 +559,8 @@ p {
 
   .copy-section__title {
     max-width: 12ch;
-    font-size: clamp(2.7rem, 14vw, 4.2rem);
+    font-size: clamp(2.1rem, 9.4vw, 3.65rem);
+    line-height: 0.9;
   }
 
   .copy-section--wide .copy-section__title {
