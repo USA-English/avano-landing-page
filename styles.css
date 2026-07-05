@@ -506,14 +506,91 @@ p {
   line-height: 1.45;
 }
 
-.future-particle-space {
-  width: min(100%, 46rem);
-  min-height: clamp(14rem, 34vh, 24rem);
-  margin-top: clamp(2.5rem, 6vw, 5rem);
-  border: 1px solid rgba(17, 50, 91, 0.1);
+.final-interaction {
+  overflow: hidden;
+}
+
+.final-interaction__inner {
+  display: grid;
+  width: min(100%, 86rem);
+  grid-template-columns: minmax(24rem, 0.88fr) minmax(24rem, 1fr);
+  align-items: center;
+  gap: clamp(2rem, 5vw, 6rem);
+}
+
+.final-interaction__copy {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  gap: clamp(2.4rem, 5vw, 4.5rem);
+  justify-items: start;
+}
+
+.opportunity-token {
+  position: relative;
+  width: clamp(4rem, 7vw, 6.4rem);
+  aspect-ratio: 1;
+  border: 0;
+  border-radius: 999px;
   background:
-    radial-gradient(circle at 50% 50%, rgba(179, 138, 73, 0.12), transparent 58%),
-    radial-gradient(circle at 55% 45%, rgba(17, 50, 91, 0.08), transparent 62%);
+    radial-gradient(circle at 35% 28%, rgba(255, 255, 255, 0.52), transparent 22%),
+    radial-gradient(circle at 58% 62%, #e03d31, #9e1716 72%);
+  box-shadow:
+    0 1.1rem 2.4rem rgba(158, 23, 22, 0.2),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+  touch-action: none;
+  transform: translate3d(0, 0, 0);
+  transition:
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.opportunity-token::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 32%;
+  height: 32%;
+  border-top: 0.18rem solid rgba(255, 255, 255, 0.82);
+  border-right: 0.18rem solid rgba(255, 255, 255, 0.82);
+  content: "";
+  transform: translate(-62%, -50%) rotate(45deg);
+}
+
+.opportunity-token:hover,
+.opportunity-token.is-dragging {
+  box-shadow:
+    0 1.4rem 3rem rgba(158, 23, 22, 0.28),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.36);
+  transform: translate3d(0, -0.18rem, 0);
+}
+
+.opportunity-token.is-dragging {
+  position: fixed;
+  z-index: 30;
+  margin: 0;
+  pointer-events: none;
+  transition: none;
+}
+
+.opportunity-token.is-dropped {
+  position: absolute;
+  z-index: 3;
+  width: clamp(3.6rem, 5.8vw, 5.4rem);
+  transform: translate(-50%, -50%);
+}
+
+.final-particle-space {
+  position: relative;
+  min-height: clamp(24rem, 62vh, 42rem);
+  isolation: isolate;
+}
+
+#final-field {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
 
 @media (max-width: 720px) {
@@ -586,6 +663,23 @@ p {
 
   .process-step {
     min-height: 0;
+  }
+
+  .final-interaction {
+    min-height: 100svh;
+  }
+
+  .final-interaction__inner {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+
+  .final-interaction__copy {
+    gap: 2rem;
+  }
+
+  .final-particle-space {
+    min-height: 22rem;
   }
 }
 
