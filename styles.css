@@ -410,7 +410,7 @@ p {
 }
 
 .copy-section__title {
-  max-width: 14ch;
+  max-width: min(100%, 62rem);
   color: var(--navy);
   font-family: var(--font-title);
   font-size: clamp(2.35rem, 4.7vw, 5.1rem);
@@ -419,7 +419,7 @@ p {
 }
 
 .copy-section--wide .copy-section__title {
-  max-width: 16ch;
+  max-width: min(100%, 72rem);
 }
 
 .copy-section__body {
@@ -558,13 +558,13 @@ p {
   }
 
   .copy-section__title {
-    max-width: 12ch;
+    max-width: min(100%, 31rem);
     font-size: clamp(2.1rem, 9.4vw, 3.65rem);
     line-height: 0.9;
   }
 
   .copy-section--wide .copy-section__title {
-    max-width: 13ch;
+    max-width: min(100%, 34rem);
   }
 
   .copy-section__body {
