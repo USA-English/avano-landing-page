@@ -393,9 +393,9 @@ p {
 
 .copy-section {
   display: grid;
-  min-height: 100svh;
+  min-height: 82svh;
   place-items: center;
-  padding: clamp(4.5rem, 8vw, 8rem) clamp(1.25rem, 6vw, 6rem);
+  padding: clamp(3.25rem, 6vw, 6rem) clamp(1.25rem, 6vw, 6rem);
   background: var(--background);
 }
 
@@ -404,7 +404,7 @@ p {
 }
 
 .copy-section--final {
-  min-height: 100svh;
+  min-height: 90svh;
 }
 
 .copy-section__inner {
@@ -428,7 +428,7 @@ p {
   display: grid;
   max-width: 58rem;
   gap: clamp(0.75rem, 1.4vw, 1.05rem);
-  margin-top: clamp(1.8rem, 4vw, 3.2rem);
+  margin-top: clamp(1.35rem, 3vw, 2.4rem);
 }
 
 .copy-section__body p {
@@ -460,7 +460,7 @@ p {
 }
 
 .process-block {
-  margin-top: clamp(2.4rem, 5vw, 4.4rem);
+  margin-top: clamp(1.8rem, 4vw, 3.4rem);
 }
 
 .process-block__title {
@@ -692,7 +692,7 @@ body.modal-open {
 
   .copy-section {
     min-height: auto;
-    padding: 4.5rem 1.25rem;
+    padding: 3.5rem 1.25rem;
   }
 
   .copy-section__title {
