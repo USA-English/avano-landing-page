@@ -2,6 +2,8 @@
   const canvas = document.getElementById("final-field");
   const space = document.querySelector(".final-particle-space");
   const token = document.querySelector(".opportunity-token");
+  const modal = document.querySelector(".opportunity-modal");
+  const modalClose = document.querySelector(".opportunity-modal__close");
 
   if (!canvas || !space || !token) {
     return;
@@ -39,6 +41,25 @@
 
   const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
   const lerp = (a, b, t) => a + (b - a) * t;
+
+  function openModal() {
+    if (!modal) {
+      return;
+    }
+
+    modal.hidden = false;
+    document.body.classList.add("modal-open");
+    modalClose?.focus();
+  }
+
+  function closeModal() {
+    if (!modal) {
+      return;
+    }
+
+    modal.hidden = true;
+    document.body.classList.remove("modal-open");
+  }
 
   function createParticles() {
     particles = Array.from({ length: PARTICLE_COUNT }, (_, index) => {
@@ -212,6 +233,12 @@
   }
 
   function beginDrag(event) {
+    if (token.classList.contains("is-locked")) {
+      event.preventDefault();
+      openModal();
+      return;
+    }
+
     const rect = token.getBoundingClientRect();
 
     tokenHomeParent = token.parentElement;
@@ -255,12 +282,14 @@
 
     if (droppedInside) {
       space.appendChild(token);
-      token.classList.add("is-dropped");
+      token.classList.add("is-dropped", "is-locked");
       token.style.left = `${dropX}px`;
       token.style.top = `${dropY}px`;
+      token.setAttribute("aria-label", "Company marker positioned inside the GovCon cloud");
       tokenField.x = dropX;
       tokenField.y = dropY;
       tokenField.active = true;
+      openModal();
     } else {
       token.classList.remove("is-dropped");
       token.style.left = "";
@@ -278,6 +307,17 @@
   createParticles();
   resize();
   window.addEventListener("resize", resize, { passive: true });
+  modalClose?.addEventListener("click", closeModal);
+  modal?.addEventListener("click", (event) => {
+    if (event.target === modal) {
+      closeModal();
+    }
+  });
+  window.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && modal && !modal.hidden) {
+      closeModal();
+    }
+  });
   space.addEventListener("pointerenter", updatePointer, { passive: true });
   space.addEventListener("pointermove", updatePointer, { passive: true });
   space.addEventListener("pointerleave", () => {
