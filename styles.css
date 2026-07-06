@@ -184,7 +184,7 @@ a {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 20;
+  z-index: 100;
   width: 18px;
   height: 18px;
   background: url("./uploads/mouse-icon.svg") center / contain no-repeat;
