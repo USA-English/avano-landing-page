@@ -4,6 +4,8 @@
   const token = document.querySelector(".opportunity-token");
   const modal = document.querySelector(".opportunity-modal");
   const modalClose = document.querySelector(".opportunity-modal__close");
+  const successModal = document.querySelector(".success-modal");
+  const successModalOk = document.querySelector(".success-modal__ok");
   const form = document.querySelector(".govcon-form");
   const formStatus = document.querySelector(".form-status");
   const firstNameInput = form?.elements?.firstName;
@@ -64,6 +66,25 @@
     }
 
     modal.hidden = true;
+    document.body.classList.remove("modal-open");
+  }
+
+  function openSuccessModal() {
+    if (!successModal) {
+      return;
+    }
+
+    successModal.hidden = false;
+    document.body.classList.add("modal-open");
+    successModalOk?.focus();
+  }
+
+  function closeSuccessModal() {
+    if (!successModal) {
+      return;
+    }
+
+    successModal.hidden = true;
     document.body.classList.remove("modal-open");
   }
 
@@ -137,7 +158,8 @@
       return;
     }
 
-    updateFormStatus("Form ready. Webhook connection will be configured next.");
+    closeModal();
+    openSuccessModal();
   }
 
   function createParticles() {
@@ -403,6 +425,12 @@
       closeModal();
     }
   });
+  successModalOk?.addEventListener("click", closeSuccessModal);
+  successModal?.addEventListener("click", (event) => {
+    if (event.target === successModal) {
+      closeSuccessModal();
+    }
+  });
   form?.addEventListener("submit", handleFormSubmit);
   firstNameInput?.addEventListener("input", () => {
     updateFormStatus("");
@@ -417,6 +445,11 @@
     updateFormStatus("");
   });
   window.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && successModal && !successModal.hidden) {
+      closeSuccessModal();
+      return;
+    }
+
     if (event.key === "Escape" && modal && !modal.hidden) {
       closeModal();
     }
