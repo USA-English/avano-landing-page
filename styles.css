@@ -657,7 +657,8 @@ p {
   height: 100%;
 }
 
-.opportunity-modal {
+.opportunity-modal,
+.success-modal {
   position: fixed;
   inset: 0;
   z-index: 40;
@@ -667,7 +668,8 @@ p {
   background: rgba(17, 50, 91, 0.18);
 }
 
-.opportunity-modal[hidden] {
+.opportunity-modal[hidden],
+.success-modal[hidden] {
   display: none;
 }
 
@@ -807,6 +809,50 @@ p {
 
 .form-submit:hover,
 .form-submit:focus-visible {
+  background: var(--gold);
+  border-color: var(--gold);
+}
+
+.success-modal__panel {
+  width: min(100%, 34rem);
+  padding: clamp(1.4rem, 3vw, 2.25rem);
+  background: var(--background);
+  color: var(--navy);
+}
+
+.success-modal__panel h2 {
+  margin: 0;
+  color: var(--navy);
+  font-family: var(--font-title);
+  font-size: clamp(1.9rem, 3.4vw, 3.4rem);
+  font-weight: 600;
+  line-height: 0.95;
+}
+
+.success-modal__panel p {
+  margin: 1rem 0 0;
+  color: color-mix(in srgb, var(--navy) 88%, black);
+  font-family: var(--font-body);
+  font-size: clamp(1rem, 1.25vw, 1.16rem);
+  line-height: 1.45;
+}
+
+.success-modal__ok {
+  min-height: 2.75rem;
+  margin-top: 1.25rem;
+  border: 1px solid var(--navy);
+  background: var(--navy);
+  color: var(--background);
+  font-family: var(--font-secondary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  padding: 0.75rem 1.15rem;
+  text-transform: uppercase;
+}
+
+.success-modal__ok:hover,
+.success-modal__ok:focus-visible {
   background: var(--gold);
   border-color: var(--gold);
 }
