@@ -163,7 +163,7 @@
     }
 
     if (!validateForm()) {
-      updateFormStatus("Please complete every field with valid information.", true);
+      updateFormStatus("Please complete every required field with valid information.", true);
       form.reportValidity();
       return;
     }
