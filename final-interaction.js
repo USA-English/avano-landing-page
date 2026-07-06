@@ -4,6 +4,12 @@
   const token = document.querySelector(".opportunity-token");
   const modal = document.querySelector(".opportunity-modal");
   const modalClose = document.querySelector(".opportunity-modal__close");
+  const form = document.querySelector(".govcon-form");
+  const formStatus = document.querySelector(".form-status");
+  const firstNameInput = form?.elements?.firstName;
+  const lastNameInput = form?.elements?.lastName;
+  const emailInput = form?.elements?.businessEmail;
+  const phoneInput = form?.elements?.phone;
 
   if (!canvas || !space || !token) {
     return;
@@ -41,6 +47,7 @@
 
   const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
   const lerp = (a, b, t) => a + (b - a) * t;
+  const blockedNames = new Set(["whatever", "test", "billy joe bob", "jhon doe"]);
 
   function openModal() {
     if (!modal) {
@@ -49,7 +56,7 @@
 
     modal.hidden = false;
     document.body.classList.add("modal-open");
-    modalClose?.focus();
+    firstNameInput?.focus();
   }
 
   function closeModal() {
@@ -59,6 +66,108 @@
 
     modal.hidden = true;
     document.body.classList.remove("modal-open");
+  }
+
+  function normalizeText(value) {
+    return value.trim().replace(/\s+/g, " ").toLowerCase();
+  }
+
+  function validateNameFields() {
+    if (!firstNameInput || !lastNameInput) {
+      return true;
+    }
+
+    const firstName = normalizeText(firstNameInput.value);
+    const lastName = normalizeText(lastNameInput.value);
+    const fullName = normalizeText(`${firstNameInput.value} ${lastNameInput.value}`);
+    const isBlocked =
+      blockedNames.has(firstName) ||
+      blockedNames.has(lastName) ||
+      blockedNames.has(fullName);
+    const hasEnoughName = firstName.length >= 2 && lastName.length >= 2;
+    const hasLettersOnly =
+      /^[a-z][a-z' -]*$/i.test(firstNameInput.value.trim()) &&
+      /^[a-z][a-z' -]*$/i.test(lastNameInput.value.trim());
+    const isValid = !isBlocked && hasEnoughName && hasLettersOnly;
+    const message = isValid ? "" : "Please enter a real first and last name.";
+
+    firstNameInput.setCustomValidity(message);
+    lastNameInput.setCustomValidity(message);
+    return isValid;
+  }
+
+  function validateEmail() {
+    if (!emailInput) {
+      return true;
+    }
+
+    const value = emailInput.value.trim();
+    const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(value);
+    emailInput.setCustomValidity(isValid ? "" : "Please enter a valid business email.");
+    return isValid;
+  }
+
+  function formatPhone(value) {
+    const digits = value.replace(/\D/g, "").slice(0, 10);
+    const area = digits.slice(0, 3);
+    const prefix = digits.slice(3, 6);
+    const line = digits.slice(6, 10);
+
+    if (digits.length > 6) {
+      return `(${area}) ${prefix}-${line}`;
+    }
+
+    if (digits.length > 3) {
+      return `(${area}) ${prefix}`;
+    }
+
+    if (digits.length > 0) {
+      return `(${area}`;
+    }
+
+    return "";
+  }
+
+  function validatePhone() {
+    if (!phoneInput) {
+      return true;
+    }
+
+    const isValid = phoneInput.value.replace(/\D/g, "").length === 10;
+    phoneInput.setCustomValidity(isValid ? "" : "Please enter a complete US phone number.");
+    return isValid;
+  }
+
+  function updateFormStatus(message, isError = false) {
+    if (!formStatus) {
+      return;
+    }
+
+    formStatus.textContent = message;
+    formStatus.classList.toggle("is-error", isError);
+  }
+
+  function validateForm() {
+    const validName = validateNameFields();
+    const validEmail = validateEmail();
+    const validPhone = validatePhone();
+    return validName && validEmail && validPhone && Boolean(form?.checkValidity());
+  }
+
+  function handleFormSubmit(event) {
+    event.preventDefault();
+
+    if (!form) {
+      return;
+    }
+
+    if (!validateForm()) {
+      updateFormStatus("Please complete every field with valid information.", true);
+      form.reportValidity();
+      return;
+    }
+
+    updateFormStatus("Form ready. Webhook connection will be configured next.");
   }
 
   function createParticles() {
@@ -312,6 +421,24 @@
     if (event.target === modal) {
       closeModal();
     }
+  });
+  form?.addEventListener("submit", handleFormSubmit);
+  firstNameInput?.addEventListener("input", () => {
+    validateNameFields();
+    updateFormStatus("");
+  });
+  lastNameInput?.addEventListener("input", () => {
+    validateNameFields();
+    updateFormStatus("");
+  });
+  emailInput?.addEventListener("input", () => {
+    validateEmail();
+    updateFormStatus("");
+  });
+  phoneInput?.addEventListener("input", () => {
+    phoneInput.value = formatPhone(phoneInput.value);
+    validatePhone();
+    updateFormStatus("");
   });
   window.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && modal && !modal.hidden) {
