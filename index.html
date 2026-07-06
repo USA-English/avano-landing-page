@@ -264,7 +264,195 @@
         <button class="opportunity-modal__close" type="button" aria-label="Close">
           Close
         </button>
-        <h2 id="opportunity-modal-title">Next step</h2>
+        <h2 id="opportunity-modal-title">Claim your position</h2>
+        <p class="opportunity-modal__intro">
+          Tell us where your company stands today. We'll use this to understand
+          the best path into federal procurement.
+        </p>
+        <form class="govcon-form" novalidate>
+          <div class="form-grid">
+            <label class="form-field">
+              <span>First name*</span>
+              <input name="firstName" autocomplete="given-name" required />
+            </label>
+
+            <label class="form-field">
+              <span>Last name*</span>
+              <input name="lastName" autocomplete="family-name" required />
+            </label>
+
+            <label class="form-field">
+              <span>Business email*</span>
+              <input
+                name="businessEmail"
+                type="email"
+                autocomplete="email"
+                required
+              />
+            </label>
+
+            <label class="form-field">
+              <span>Phone number*</span>
+              <input
+                name="phone"
+                type="tel"
+                inputmode="tel"
+                autocomplete="tel"
+                placeholder="(555) 555-5555"
+                required
+              />
+            </label>
+
+            <label class="form-field">
+              <span>Company name*</span>
+              <input name="companyName" autocomplete="organization" required />
+            </label>
+
+            <label class="form-field">
+              <span>Company website*</span>
+              <input
+                name="companyWebsite"
+                type="url"
+                autocomplete="url"
+                placeholder="https://"
+                required
+              />
+            </label>
+
+            <label class="form-field">
+              <span>State*</span>
+              <select name="state" autocomplete="address-level1" required>
+                <option value="">Select state</option>
+                <option>Alabama</option>
+                <option>Alaska</option>
+                <option>Arizona</option>
+                <option>Arkansas</option>
+                <option>California</option>
+                <option>Colorado</option>
+                <option>Connecticut</option>
+                <option>Delaware</option>
+                <option>Florida</option>
+                <option>Georgia</option>
+                <option>Hawaii</option>
+                <option>Idaho</option>
+                <option>Illinois</option>
+                <option>Indiana</option>
+                <option>Iowa</option>
+                <option>Kansas</option>
+                <option>Kentucky</option>
+                <option>Louisiana</option>
+                <option>Maine</option>
+                <option>Maryland</option>
+                <option>Massachusetts</option>
+                <option>Michigan</option>
+                <option>Minnesota</option>
+                <option>Mississippi</option>
+                <option>Missouri</option>
+                <option>Montana</option>
+                <option>Nebraska</option>
+                <option>Nevada</option>
+                <option>New Hampshire</option>
+                <option>New Jersey</option>
+                <option>New Mexico</option>
+                <option>New York</option>
+                <option>North Carolina</option>
+                <option>North Dakota</option>
+                <option>Ohio</option>
+                <option>Oklahoma</option>
+                <option>Oregon</option>
+                <option>Pennsylvania</option>
+                <option>Rhode Island</option>
+                <option>South Carolina</option>
+                <option>South Dakota</option>
+                <option>Tennessee</option>
+                <option>Texas</option>
+                <option>Utah</option>
+                <option>Vermont</option>
+                <option>Virginia</option>
+                <option>Washington</option>
+                <option>Washington, DC</option>
+                <option>West Virginia</option>
+                <option>Wisconsin</option>
+                <option>Wyoming</option>
+              </select>
+            </label>
+
+            <label class="form-field">
+              <span>Annual revenue range*</span>
+              <select name="annualRevenue" required>
+                <option value="">Select range</option>
+                <option>Under US$500k</option>
+                <option>US$500k to US$1M</option>
+                <option>US$1M to US$5M</option>
+                <option>US$5M to US$25M</option>
+                <option>US$25M+</option>
+              </select>
+            </label>
+
+            <label class="form-field form-field--full">
+              <span>What does your company sell?*</span>
+              <textarea name="companyOffer" rows="3" required></textarea>
+            </label>
+
+            <label class="form-field">
+              <span>Are you currently registered in SAM.gov?*</span>
+              <select name="samRegistered" required>
+                <option value="">Select answer</option>
+                <option>Yes</option>
+                <option>No</option>
+                <option>Not sure</option>
+              </select>
+            </label>
+
+            <label class="form-field">
+              <span>Have you ever submitted a government contract bid before?*</span>
+              <select name="previousBid" required>
+                <option value="">Select answer</option>
+                <option>Yes and won</option>
+                <option>Yes but did not win</option>
+                <option>No</option>
+                <option>Not sure</option>
+              </select>
+            </label>
+
+            <label class="form-field form-field--full">
+              <span>What made you interested in government contracting now?*</span>
+              <textarea name="interestReason" rows="3" required></textarea>
+            </label>
+
+            <label class="form-field">
+              <span>What kind of help are you looking for?*</span>
+              <select name="helpNeeded" required>
+                <option value="">Select help type</option>
+                <option>Market research or roadmap</option>
+                <option>Registration support</option>
+                <option>Finding opportunities</option>
+                <option>Bid or proposal support</option>
+                <option>Full consulting support</option>
+                <option>Not sure yet</option>
+              </select>
+            </label>
+
+            <label class="form-field">
+              <span>How soon would you like to move forward?*</span>
+              <select name="timeline" required>
+                <option value="">Select timeline</option>
+                <option>Immediately</option>
+                <option>Within 30 days</option>
+                <option>1 to 3 months</option>
+                <option>Just researching</option>
+              </select>
+            </label>
+
+            <label class="form-field form-field--full">
+              <span>Anything else we should know?*</span>
+              <textarea name="additionalNotes" rows="3" required></textarea>
+            </label>
+          </div>
+
+          <p class="form-status" aria-live="polite"></p>
+          <button class="form-submit" type="submit">Submit</button>
+        </form>
       </div>
     </div>
 
