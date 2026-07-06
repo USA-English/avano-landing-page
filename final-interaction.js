@@ -30,6 +30,7 @@
   let tokenHomeNext = token.nextSibling;
   let dragOffsetX = 0;
   let dragOffsetY = 0;
+  let tokenPlaceholder = null;
 
   const pointer = {
     x: -10000,
@@ -355,6 +356,12 @@
     dragOffsetX = event.clientX - rect.left;
     dragOffsetY = event.clientY - rect.top;
 
+    tokenPlaceholder = document.createElement("span");
+    tokenPlaceholder.className = "opportunity-token-placeholder";
+    tokenPlaceholder.style.width = `${rect.width}px`;
+    tokenPlaceholder.style.height = `${rect.height}px`;
+    tokenHomeParent.insertBefore(tokenPlaceholder, token);
+
     token.classList.remove("is-dropped");
     token.classList.add("is-dragging");
     token.style.width = `${rect.width}px`;
@@ -390,6 +397,8 @@
     token.style.transform = "";
 
     if (droppedInside) {
+      tokenPlaceholder?.remove();
+      tokenPlaceholder = null;
       space.appendChild(token);
       token.classList.add("is-dropped", "is-locked");
       token.style.left = `${dropX}px`;
@@ -405,7 +414,10 @@
       token.style.top = "";
       tokenField.active = false;
 
-      if (tokenHomeNext) {
+      if (tokenPlaceholder && tokenPlaceholder.parentElement) {
+        tokenPlaceholder.replaceWith(token);
+        tokenPlaceholder = null;
+      } else if (tokenHomeNext) {
         tokenHomeParent.insertBefore(token, tokenHomeNext);
       } else {
         tokenHomeParent.appendChild(token);
