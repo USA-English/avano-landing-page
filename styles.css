@@ -610,6 +610,12 @@ p {
   transition: opacity 160ms ease;
 }
 
+.opportunity-token-placeholder {
+  display: block;
+  pointer-events: none;
+  visibility: hidden;
+}
+
 .opportunity-token::after {
   display: none;
 }
@@ -901,14 +907,6 @@ body.modal-open {
 
   .final-particle-space {
     min-height: 22rem;
-  }
-
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .opportunity-modal__panel {
-    max-height: 92svh;
   }
 }
 
