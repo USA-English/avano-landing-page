@@ -513,15 +513,18 @@ p {
 .final-interaction__inner {
   display: grid;
   width: min(100%, 86rem);
-  gap: clamp(2rem, 5vw, 4.5rem);
+  gap: clamp(1rem, 2vw, 2rem);
+  justify-items: center;
 }
 
 .final-interaction__title {
   max-width: min(100%, 72rem);
+  text-align: center;
 }
 
 .final-interaction__stage {
   display: grid;
+  width: 100%;
   grid-template-columns: minmax(18rem, 0.58fr) minmax(24rem, 1fr);
   align-items: center;
   gap: clamp(2rem, 5vw, 6rem);
@@ -531,8 +534,9 @@ p {
   position: relative;
   z-index: 2;
   display: grid;
-  gap: clamp(1rem, 2vw, 1.6rem);
-  justify-items: start;
+  gap: clamp(1.15rem, 2vw, 1.8rem);
+  justify-items: center;
+  text-align: center;
 }
 
 .final-interaction__subtitle {
@@ -546,8 +550,52 @@ p {
   letter-spacing: 0.06em;
 }
 
-.final-interaction__subtitle span {
+.final-interaction__subtitle strong {
   font-weight: 800;
+}
+
+.final-interaction__line {
+  display: block;
+}
+
+.final-interaction__line + .final-interaction__line {
+  margin-top: clamp(0.9rem, 1.8vw, 1.35rem);
+}
+
+.company-marker {
+  display: grid;
+  justify-items: center;
+  gap: 0.45rem;
+}
+
+.company-marker__label {
+  margin: 0;
+  color: var(--gold);
+  font-family: var(--font-secondary);
+  font-size: clamp(0.82rem, 1.15vw, 1.08rem);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.06em;
+}
+
+.company-marker__arrow {
+  position: relative;
+  width: 1px;
+  height: clamp(1.7rem, 3vw, 2.5rem);
+  background: var(--gold);
+}
+
+.company-marker__arrow::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -1px;
+  width: 0.48rem;
+  height: 0.48rem;
+  border-right: 1px solid var(--gold);
+  border-bottom: 1px solid var(--gold);
+  transform: translateX(-50%) rotate(45deg);
+  transform-origin: center;
 }
 
 .opportunity-token {
