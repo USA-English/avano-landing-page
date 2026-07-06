@@ -7,7 +7,6 @@
   const form = document.querySelector(".govcon-form");
   const formStatus = document.querySelector(".form-status");
   const firstNameInput = form?.elements?.firstName;
-  const lastNameInput = form?.elements?.lastName;
   const emailInput = form?.elements?.businessEmail;
   const phoneInput = form?.elements?.phone;
 
@@ -48,7 +47,6 @@
 
   const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
   const lerp = (a, b, t) => a + (b - a) * t;
-  const blockedNames = new Set(["whatever", "test", "billy joe bob", "jhon doe"]);
 
   function openModal() {
     if (!modal) {
@@ -67,34 +65,6 @@
 
     modal.hidden = true;
     document.body.classList.remove("modal-open");
-  }
-
-  function normalizeText(value) {
-    return value.trim().replace(/\s+/g, " ").toLowerCase();
-  }
-
-  function validateNameFields() {
-    if (!firstNameInput || !lastNameInput) {
-      return true;
-    }
-
-    const firstName = normalizeText(firstNameInput.value);
-    const lastName = normalizeText(lastNameInput.value);
-    const fullName = normalizeText(`${firstNameInput.value} ${lastNameInput.value}`);
-    const isBlocked =
-      blockedNames.has(firstName) ||
-      blockedNames.has(lastName) ||
-      blockedNames.has(fullName);
-    const hasEnoughName = firstName.length >= 2 && lastName.length >= 2;
-    const hasLettersOnly =
-      /^[a-z][a-z' -]*$/i.test(firstNameInput.value.trim()) &&
-      /^[a-z][a-z' -]*$/i.test(lastNameInput.value.trim());
-    const isValid = !isBlocked && hasEnoughName && hasLettersOnly;
-    const message = isValid ? "" : "Please enter a real first and last name.";
-
-    firstNameInput.setCustomValidity(message);
-    lastNameInput.setCustomValidity(message);
-    return isValid;
   }
 
   function validateEmail() {
@@ -149,10 +119,9 @@
   }
 
   function validateForm() {
-    const validName = validateNameFields();
     const validEmail = validateEmail();
     const validPhone = validatePhone();
-    return validName && validEmail && validPhone && Boolean(form?.checkValidity());
+    return validEmail && validPhone && Boolean(form?.checkValidity());
   }
 
   function handleFormSubmit(event) {
@@ -436,11 +405,6 @@
   });
   form?.addEventListener("submit", handleFormSubmit);
   firstNameInput?.addEventListener("input", () => {
-    validateNameFields();
-    updateFormStatus("");
-  });
-  lastNameInput?.addEventListener("input", () => {
-    validateNameFields();
     updateFormStatus("");
   });
   emailInput?.addEventListener("input", () => {
