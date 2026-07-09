@@ -284,15 +284,19 @@ a {
   letter-spacing: 0.08em;
 }
 
-.hero__logo {
+.section-logo {
   display: block;
   width: min(44vw, 38rem);
   min-width: 24rem;
-  align-self: center;
-  margin-top: clamp(0.7rem, 1.8vh, 1.15rem);
   padding: clamp(0.35rem, 1vw, 0.8rem);
   background: var(--background);
   object-fit: contain;
+}
+
+.section-logo--second {
+  width: min(48vw, 34rem);
+  min-width: 20rem;
+  margin: 0 auto clamp(1.8rem, 4vw, 3.4rem);
 }
 
 .hero__closing {
@@ -422,6 +426,22 @@ p {
 
 .copy-section--wide .copy-section__title {
   max-width: min(100%, 72rem);
+}
+
+.copy-section__title--single {
+  max-width: none;
+  white-space: nowrap;
+}
+
+.copy-section__subtitle {
+  max-width: min(100%, 58rem);
+  margin: clamp(0.7rem, 1.4vw, 1rem) 0 0;
+  color: var(--gold);
+  font-family: var(--font-secondary);
+  font-size: clamp(0.95rem, 1.55vw, 1.35rem);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: 0.08em;
 }
 
 .copy-section__body {
@@ -894,9 +914,13 @@ body.modal-open {
     line-height: 0.95;
   }
 
-  .hero__logo {
+  .section-logo {
     width: min(88vw, 24rem);
     min-width: 0;
+  }
+
+  .section-logo--second {
+    margin-bottom: 2rem;
   }
 
   .copy-section {
@@ -912,6 +936,10 @@ body.modal-open {
 
   .copy-section--wide .copy-section__title {
     max-width: min(100%, 34rem);
+  }
+
+  .copy-section__title--single {
+    white-space: normal;
   }
 
   .copy-section__body {
