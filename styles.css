@@ -296,7 +296,8 @@ a {
 .section-logo--second {
   width: min(48vw, 34rem);
   min-width: 20rem;
-  margin: 0 auto clamp(1.8rem, 4vw, 3.4rem);
+  margin: 0 0 clamp(1.8rem, 4vw, 3.4rem);
+  transform: translateX(calc(50vw - 50% - clamp(1.25rem, 6vw, 6rem)));
 }
 
 .hero__closing {
@@ -921,6 +922,7 @@ body.modal-open {
 
   .section-logo--second {
     margin-bottom: 2rem;
+    transform: none;
   }
 
   .copy-section {
