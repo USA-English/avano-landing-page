@@ -312,6 +312,7 @@ a {
 }
 
 .hero__cta {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -333,6 +334,19 @@ a {
   text-align: center;
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.22);
   text-transform: uppercase;
+  isolation: isolate;
+}
+
+.hero__cta::before {
+  content: "";
+  position: absolute;
+  inset: -0.38rem;
+  z-index: -1;
+  border-radius: inherit;
+  background: rgba(17, 50, 91, 0.18);
+  opacity: 0;
+  transform: scale(0.94);
+  transform-origin: center;
   animation: ctaPulse 3.8s ease-in-out infinite;
 }
 
@@ -703,13 +717,13 @@ p {
 @keyframes ctaPulse {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(17, 50, 91, 0.2);
-    transform: translateY(0);
+    opacity: 0;
+    transform: scale(0.94);
   }
 
   50% {
-    box-shadow: 0 0 0 0.45rem rgba(17, 50, 91, 0);
-    transform: translateY(-1px);
+    opacity: 1;
+    transform: scale(1.08);
   }
 }
 
