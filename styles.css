@@ -316,19 +316,22 @@ a {
   align-items: center;
   justify-content: center;
   align-self: center;
-  min-height: 2.85rem;
-  margin-top: clamp(1.1rem, 2.4vh, 1.8rem);
-  padding: 0.82rem 1.45rem;
-  border: 1px solid var(--navy);
+  min-width: clamp(14rem, 18vw, 18rem);
+  min-height: clamp(4.1rem, 5.6vw, 5.1rem);
+  margin-top: clamp(1.4rem, 3vh, 2.2rem);
+  padding: 1.15rem 2.6rem;
+  border: 2px solid color-mix(in srgb, var(--gold) 42%, var(--navy));
   border-radius: 999px;
   background: var(--navy);
-  color: var(--gold);
+  color: #d7b86f;
   font-family: var(--font-secondary);
-  font-size: clamp(0.78rem, 0.95vw, 0.95rem);
-  font-weight: 700;
+  font-size: clamp(1.05rem, 1.35vw, 1.45rem);
+  font-weight: 800;
   line-height: 1;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   pointer-events: auto;
+  text-align: center;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.22);
   text-transform: uppercase;
   animation: ctaPulse 3.8s ease-in-out infinite;
 }
@@ -974,9 +977,10 @@ body.modal-open {
   }
 
   .hero__cta {
-    min-height: 2.65rem;
-    padding: 0.76rem 1.2rem;
-    font-size: 0.75rem;
+    min-width: min(78vw, 16rem);
+    min-height: 3.75rem;
+    padding: 1rem 1.6rem;
+    font-size: 0.95rem;
   }
 
   .section-logo {
