@@ -469,7 +469,7 @@ p {
   display: grid;
   gap: 0.65rem;
   margin: 0;
-  padding-left: 1.1rem;
+  padding-left: clamp(2rem, 3.4vw, 3.25rem);
   color: color-mix(in srgb, var(--navy) 88%, black);
   font-family: var(--font-body);
   font-size: clamp(1.05rem, 1.45vw, 1.35rem);
