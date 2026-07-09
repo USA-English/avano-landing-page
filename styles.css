@@ -303,12 +303,12 @@ a {
 .hero__closing {
   width: min(100%, 45rem);
   margin-top: clamp(0.95rem, 2.2vh, 1.4rem);
-  color: var(--navy);
-  font-family: var(--font-title);
-  font-size: clamp(1.65rem, 3.1vw, 3.2rem);
-  font-weight: 500;
-  line-height: 0.95;
-  letter-spacing: 0;
+  color: var(--gold);
+  font-family: var(--font-secondary);
+  font-size: clamp(0.75rem, 1vw, 1.05rem);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: 0.08em;
 }
 
 .reveal {
@@ -911,8 +911,8 @@ body.modal-open {
   }
 
   .hero__closing {
-    font-size: clamp(1.65rem, 7vw, 2.55rem);
-    line-height: 0.95;
+    font-size: clamp(0.72rem, 3vw, 0.9rem);
+    line-height: 1.25;
   }
 
   .section-logo {
