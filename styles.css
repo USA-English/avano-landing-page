@@ -311,6 +311,35 @@ a {
   letter-spacing: 0.08em;
 }
 
+.hero__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  min-height: 2.85rem;
+  margin-top: clamp(1.1rem, 2.4vh, 1.8rem);
+  padding: 0.82rem 1.45rem;
+  border: 1px solid var(--navy);
+  border-radius: 999px;
+  background: var(--navy);
+  color: var(--gold);
+  font-family: var(--font-secondary);
+  font-size: clamp(0.78rem, 0.95vw, 0.95rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.12em;
+  pointer-events: auto;
+  text-transform: uppercase;
+  animation: ctaPulse 3.8s ease-in-out infinite;
+}
+
+.hero__cta:hover,
+.hero__cta:focus-visible {
+  background: color-mix(in srgb, var(--navy) 88%, black);
+  outline: 2px solid rgba(179, 138, 73, 0.28);
+  outline-offset: 3px;
+}
+
 .reveal {
   opacity: 1;
   transform: none;
@@ -628,6 +657,7 @@ p {
   background: #d71920;
   touch-action: none;
   transform: translate3d(0, 0, 0);
+  animation: redDotPulse 2.4s ease-in-out infinite;
   transition: opacity 160ms ease;
 }
 
@@ -650,6 +680,7 @@ p {
   position: fixed;
   z-index: 30;
   margin: 0;
+  animation: none;
   pointer-events: none;
   transition: none;
 }
@@ -662,7 +693,34 @@ p {
 }
 
 .opportunity-token.is-locked {
+  animation: none;
   opacity: 1;
+}
+
+@keyframes ctaPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(17, 50, 91, 0.2);
+    transform: translateY(0);
+  }
+
+  50% {
+    box-shadow: 0 0 0 0.45rem rgba(17, 50, 91, 0);
+    transform: translateY(-1px);
+  }
+}
+
+@keyframes redDotPulse {
+  0%,
+  100% {
+    background: #d71920;
+    opacity: 1;
+  }
+
+  50% {
+    background: #e12229;
+    opacity: 0.82;
+  }
 }
 
 .final-particle-space {
@@ -915,6 +973,12 @@ body.modal-open {
     line-height: 1.25;
   }
 
+  .hero__cta {
+    min-height: 2.65rem;
+    padding: 0.76rem 1.2rem;
+    font-size: 0.75rem;
+  }
+
   .section-logo {
     width: min(88vw, 24rem);
     min-width: 0;
@@ -994,6 +1058,11 @@ body.modal-open {
   .reveal {
     opacity: 1;
     transform: none;
+    animation: none;
+  }
+
+  .hero__cta,
+  .opportunity-token {
     animation: none;
   }
 }
