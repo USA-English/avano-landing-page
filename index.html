@@ -31,10 +31,29 @@
         letter-spacing: 0;
       }
 
+      .opportunity-layout {
+        width: min(100%, 100rem);
+        grid-template-columns: minmax(0, 58rem) minmax(28rem, 1.15fr);
+        gap: clamp(1.5rem, 3vw, 3.6rem);
+      }
+
+      .opportunity-layout__visual img {
+        width: min(100%, 50rem);
+      }
+
       @media (max-width: 720px) {
         .hero__closing {
           font-size: clamp(1.65rem, 6.45vw, 2.35rem);
           line-height: 0.95;
+        }
+
+        .opportunity-layout {
+          grid-template-columns: 1fr;
+          gap: 2.25rem;
+        }
+
+        .opportunity-layout__visual img {
+          width: min(100%, 30.4rem);
         }
       }
     </style>
