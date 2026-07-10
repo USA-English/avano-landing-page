@@ -444,6 +444,7 @@ p {
 
 .copy-section {
   display: grid;
+  position: relative;
   min-height: 82svh;
   place-items: center;
   padding: clamp(3.25rem, 6vw, 6rem) clamp(1.25rem, 6vw, 6rem);
@@ -459,7 +460,20 @@ p {
 }
 
 .copy-section__inner {
+  position: relative;
+  z-index: 1;
   width: min(100%, 68rem);
+}
+
+.copy-section--maze {
+  overflow: hidden;
+  isolation: isolate;
+  place-items: center start;
+}
+
+.copy-section--maze::before,
+.copy-section--maze::after {
+  display: none;
 }
 
 .copy-section__title {
