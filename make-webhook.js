@@ -15,6 +15,18 @@
     }
   }
 
+  function relaxWebsiteValidation() {
+    const websiteField = form.elements.companyWebsite;
+
+    if (!websiteField) {
+      return;
+    }
+
+    websiteField.type = "text";
+    websiteField.inputMode = "url";
+    websiteField.placeholder = "www.example.com";
+  }
+
   function buildPayload() {
     const formData = new FormData(form);
     const payload = {};
@@ -46,5 +58,6 @@
   }
 
   removeUnusedFields();
+  relaxWebsiteValidation();
   form.addEventListener("submit", sendToMake);
 })();
