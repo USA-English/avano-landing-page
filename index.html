@@ -13,42 +13,14 @@
     <link rel="preload" href="./uploads/mouse-icon.svg" as="image" />
     <link rel="stylesheet" href="./styles.css" />
     <style>
-      body {
-        overflow-x: clip;
-      }
-
       main > .copy-section:nth-of-type(3) {
         position: relative;
         z-index: 1;
-        overflow: visible;
-        isolation: isolate;
-      }
-
-      main > .copy-section:nth-of-type(3) .copy-section__inner {
-        position: relative;
-        z-index: 1;
-      }
-
-      main > .copy-section:nth-of-type(3)::before,
-      main > .copy-section:nth-of-type(3)::after {
-        content: "";
-        position: absolute;
-        z-index: 0;
-        width: clamp(17.6rem, 35.2vw, 38.4rem);
-        aspect-ratio: 1;
-        background: url("./uploads/maze-bg.webp") center / contain no-repeat;
-        opacity: 0.38;
-        pointer-events: none;
-      }
-
-      main > .copy-section:nth-of-type(3)::before {
-        top: clamp(-12rem, -16vw, -7rem);
-        left: clamp(-16rem, -18vw, -8rem);
-      }
-
-      main > .copy-section:nth-of-type(3)::after {
-        right: clamp(-18rem, -19vw, -9rem);
-        bottom: clamp(-14rem, -16vw, -7rem);
+        overflow: hidden;
+        background-image: url("./uploads/maze-bg.webp");
+        background-position: center;
+        background-size: cover;
+        background-repeat: no-repeat;
       }
     </style>
   </head>
@@ -134,7 +106,7 @@
         </div>
       </section>
 
-      <section class="copy-section">
+      <section class="copy-section copy-section--maze">
         <div class="copy-section__inner">
           <h1 class="copy-section__title">Finding a real path forward in the B2G maze</h1>
           <div class="copy-section__body">
