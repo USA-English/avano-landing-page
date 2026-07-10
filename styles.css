@@ -294,9 +294,9 @@ a {
 }
 
 .section-logo--second {
-  width: min(48vw, 34rem);
-  min-width: 20rem;
-  margin: 0 0 clamp(1.8rem, 4vw, 3.4rem);
+  width: min(72vw, 52rem);
+  min-width: 32rem;
+  margin: clamp(-3.5rem, -4vw, -1.5rem) 0 clamp(2.2rem, 4.8vw, 4.2rem);
   transform: translateX(calc(50vw - 50% - clamp(1.25rem, 6vw, 6rem)));
 }
 
@@ -488,7 +488,7 @@ p {
 
 .opportunity-layout__visual img {
   display: block;
-  width: min(100%, 34.5rem);
+  width: min(100%, 41.4rem);
   height: auto;
   object-fit: contain;
 }
@@ -1045,6 +1045,7 @@ body.modal-open {
   }
 
   .section-logo--second {
+    width: min(100%, 29rem);
     margin-bottom: 2rem;
     transform: none;
   }
@@ -1079,7 +1080,7 @@ body.modal-open {
   }
 
   .opportunity-layout__visual img {
-    width: min(100%, 25.3rem);
+    width: min(100%, 30.4rem);
   }
 
   .copy-section__body p,
