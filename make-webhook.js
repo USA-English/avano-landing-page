@@ -1,9 +1,13 @@
 (() => {
   const MAKE_WEBHOOK_URL = "https://hook.us2.make.com/aufm9atnl7jf7kn8466xqc5dqwwiygy4";
   const form = document.querySelector(".govcon-form");
+  const submitButton = form?.querySelector(".form-submit");
   const removedFieldNames = ["helpNeeded", "timeline"];
+  let submitClickArmed = false;
+  let lastPayloadSignature = "";
+  let lastSentAt = 0;
 
-  if (!form) {
+  if (!form || !submitButton) {
     return;
   }
 
@@ -42,22 +46,46 @@
     return payload;
   }
 
+  function hasMeaningfulPayload(payload) {
+    return Object.values(payload).some((value) => value.length > 0);
+  }
+
   function sendToMake() {
-    if (!MAKE_WEBHOOK_URL || !form.checkValidity()) {
+    const payload = buildPayload();
+    const payloadSignature = JSON.stringify(payload);
+    const now = Date.now();
+
+    if (
+      !MAKE_WEBHOOK_URL ||
+      !submitClickArmed ||
+      !form.checkValidity() ||
+      !hasMeaningfulPayload(payload) ||
+      (payloadSignature === lastPayloadSignature && now - lastSentAt < 8000)
+    ) {
+      submitClickArmed = false;
       return;
     }
+
+    submitClickArmed = false;
+    lastPayloadSignature = payloadSignature;
+    lastSentAt = now;
 
     void fetch(MAKE_WEBHOOK_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(buildPayload()),
+      body: payloadSignature,
       keepalive: true
     }).catch(() => {});
   }
 
   removeUnusedFields();
   relaxWebsiteValidation();
+
+  submitButton.addEventListener("click", (event) => {
+    submitClickArmed = event.isTrusted === true;
+  });
+
   form.addEventListener("submit", sendToMake);
 })();
