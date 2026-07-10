@@ -481,12 +481,14 @@ p {
   display: grid;
   width: 100%;
   margin: 0;
+  align-self: end;
   place-items: center;
+  transform: translateY(calc(-1 * clamp(1.35rem, 3vw, 2.4rem)));
 }
 
 .opportunity-layout__visual img {
   display: block;
-  width: min(100%, 30rem);
+  width: min(100%, 34.5rem);
   height: auto;
   object-fit: contain;
 }
@@ -1077,7 +1079,7 @@ body.modal-open {
   }
 
   .opportunity-layout__visual img {
-    width: min(100%, 22rem);
+    width: min(100%, 25.3rem);
   }
 
   .copy-section__body p,
