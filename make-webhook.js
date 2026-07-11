@@ -57,7 +57,9 @@
       }
 
       .expert-section__copy .copy-section__title {
-        max-width: min(100%, 58rem);
+        max-width: min(100%, 42rem);
+        white-space: normal;
+        text-align: center;
       }
 
       .expert-section__copy .copy-section__subtitle {
@@ -158,7 +160,7 @@
           />
         </figure>
         <div class="expert-section__copy">
-          <h1 class="copy-section__title copy-section__title--single">
+          <h1 class="copy-section__title">
             From the White House to Federal Contracting
           </h1>
           <p class="copy-section__subtitle">
