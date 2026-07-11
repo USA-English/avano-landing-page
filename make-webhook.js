@@ -25,14 +25,15 @@
       }
 
       .expert-section__inner {
-        width: min(100%, 86rem);
+        width: min(100%, 94rem);
         display: grid;
-        grid-template-columns: minmax(18rem, 0.78fr) minmax(0, 1fr);
+        grid-template-columns: minmax(16rem, 0.72fr) minmax(0, 1fr) minmax(9rem, 0.36fr);
         align-items: center;
-        gap: clamp(2rem, 5vw, 5.5rem);
+        gap: clamp(1.75rem, 3.6vw, 4.5rem);
       }
 
-      .expert-section__visual {
+      .expert-section__visual,
+      .expert-section__seals {
         margin: 0;
       }
 
@@ -45,18 +46,56 @@
 
       .expert-section__copy {
         min-width: 0;
+        text-align: center;
+      }
+
+      .expert-section__copy .copy-section__title,
+      .expert-section__copy .copy-section__subtitle,
+      .expert-section__copy .copy-section__body {
+        margin-left: auto;
+        margin-right: auto;
       }
 
       .expert-section__copy .copy-section__title {
-        max-width: min(100%, 56rem);
+        max-width: min(100%, 58rem);
       }
 
       .expert-section__copy .copy-section__subtitle {
-        max-width: min(100%, 54rem);
+        max-width: min(100%, 46rem);
       }
 
       .expert-section__copy .copy-section__body {
-        max-width: 58rem;
+        max-width: 50rem;
+      }
+
+      .expert-section__seals {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: clamp(1.5rem, 3vw, 2.75rem);
+      }
+
+      .expert-section__seals img {
+        display: block;
+        width: min(100%, 10.5rem);
+        height: auto;
+        object-fit: contain;
+      }
+
+      @media (max-width: 960px) {
+        .expert-section__inner {
+          grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr);
+        }
+
+        .expert-section__seals {
+          grid-column: 1 / -1;
+          flex-direction: row;
+        }
+
+        .expert-section__seals img {
+          width: min(38vw, 9rem);
+        }
       }
 
       @media (max-width: 720px) {
@@ -66,6 +105,10 @@
         }
 
         .expert-section__visual {
+          order: -2;
+        }
+
+        .expert-section__seals {
           order: -1;
         }
 
@@ -127,6 +170,16 @@
             </p>
           </div>
         </div>
+        <figure class="expert-section__seals" aria-label="Eric Craig credentials">
+          <img
+            src="./uploads/us-army-seal.webp"
+            alt="United States Army seal"
+          />
+          <img
+            src="./uploads/wh-comms-seal.webp"
+            alt="White House Communications Agency seal"
+          />
+        </figure>
       </div>
     `;
 
