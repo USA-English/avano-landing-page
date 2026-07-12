@@ -95,28 +95,35 @@
         }
       }
 
-      .hero__cta--image {
+      .hero__cta--image,
+      .hero__cta--image:hover,
+      .hero__cta--image:focus,
+      .hero__cta--image:focus-visible,
+      .hero__cta--image:active {
         width: min(100%, 18rem);
-        padding: 0;
-        border: 0;
-        border-radius: 0;
-        background: transparent;
+        padding: 0 !important;
+        border: 0 !important;
+        outline: 0 !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        background-color: transparent !important;
         box-shadow: none !important;
+        filter: none !important;
+        color: inherit !important;
         line-height: 0;
         transform-origin: center;
         animation: heroButtonScalePulse 1.9s ease-in-out infinite;
         will-change: transform;
       }
 
-      .hero__cta--image:hover,
-      .hero__cta--image:focus-visible {
-        box-shadow: none !important;
-      }
-
       .hero__cta--image img {
         display: block;
         width: 100%;
         height: auto;
+        background: transparent !important;
+        box-shadow: none !important;
+        filter: none !important;
+        mix-blend-mode: multiply;
       }
 
       @media (prefers-reduced-motion: reduce) {
@@ -159,7 +166,11 @@
           margin: 0 auto;
         }
 
-        .hero__cta--image {
+        .hero__cta--image,
+        .hero__cta--image:hover,
+        .hero__cta--image:focus,
+        .hero__cta--image:focus-visible,
+        .hero__cta--image:active {
           width: min(100%, 16rem);
         }
       }
