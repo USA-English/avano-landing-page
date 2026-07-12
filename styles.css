@@ -531,18 +531,44 @@ p {
   margin-top: clamp(0.6rem, 1.5vw, 1rem);
 }
 
-.assessment-cta {
+.assessment-cta,
+.assessment-cta:hover,
+.assessment-cta:focus,
+.assessment-cta:focus-visible,
+.assessment-cta:active {
   display: inline-flex;
+  width: min(100%, 18rem);
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
   padding: 0;
   border: 0;
+  border-radius: 0;
+  outline: 0;
   background: transparent;
+  box-shadow: none;
+  filter: none;
   cursor: pointer;
 }
 
 .assessment-cta img {
   display: block;
-  width: min(100%, 18rem);
+  width: 100%;
+  max-width: 100%;
   height: auto;
+  background: transparent;
+  box-shadow: none;
+  filter: none;
+}
+
+@media (max-width: 720px) {
+  .assessment-cta,
+  .assessment-cta:hover,
+  .assessment-cta:focus,
+  .assessment-cta:focus-visible,
+  .assessment-cta:active {
+    width: min(100%, 16rem);
+  }
 }
 
 .copy-list {
