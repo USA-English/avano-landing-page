@@ -27,15 +27,16 @@
       .expert-section__inner {
         width: min(100%, 94rem);
         display: grid;
-        grid-template-columns: minmax(17rem, 0.72fr) minmax(0, 1fr);
+        grid-template-columns: minmax(14rem, 0.55fr) minmax(0, 1.45fr);
         align-items: center;
-        gap: clamp(1.25rem, 2.4vw, 2.5rem);
+        gap: clamp(1rem, 1.8vw, 1.75rem);
       }
 
       .expert-section__title {
         max-width: none !important;
         margin: 0;
         text-align: center;
+        white-space: nowrap;
       }
 
       .expert-section__visual,
@@ -51,7 +52,7 @@
 
       .expert-section__visual > img {
         display: block;
-        width: min(100%, 30rem);
+        width: min(100%, 26rem);
         height: auto;
         object-fit: contain;
       }
@@ -69,7 +70,8 @@
       }
 
       .expert-section__copy .copy-section__subtitle {
-        max-width: min(100%, 46rem);
+        max-width: none;
+        white-space: nowrap;
       }
 
       .expert-section__copy .copy-section__body {
@@ -80,12 +82,12 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: clamp(1rem, 2.25vw, 1.75rem);
+        gap: clamp(1.35rem, 2.6vw, 2.15rem);
       }
 
       .expert-section__seals img {
         display: block;
-        width: min(40%, 8.5rem);
+        width: min(42%, 10.2rem);
         height: auto;
         object-fit: contain;
       }
@@ -131,8 +133,8 @@
 
       @media (max-width: 960px) {
         .expert-section__inner {
-          grid-template-columns: minmax(14rem, 0.7fr) minmax(0, 1fr);
-          gap: 2rem;
+          grid-template-columns: minmax(13rem, 0.55fr) minmax(0, 1.45fr);
+          gap: 1.25rem;
         }
 
         .expert-section__seals img {
@@ -148,6 +150,11 @@
 
         .expert-section__title {
           font-size: clamp(2.35rem, 12vw, 4.25rem);
+          white-space: normal;
+        }
+
+        .expert-section__copy .copy-section__subtitle {
+          white-space: normal;
         }
 
         .expert-section__visual > img {
