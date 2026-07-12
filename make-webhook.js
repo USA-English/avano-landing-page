@@ -85,20 +85,44 @@
         object-fit: contain;
       }
 
+      @keyframes heroButtonScalePulse {
+        0%, 100% {
+          transform: scale(1);
+        }
+
+        50% {
+          transform: scale(1.045);
+        }
+      }
+
       .hero__cta--image {
         width: min(100%, 18rem);
         padding: 0;
         border: 0;
         border-radius: 0;
         background: transparent;
-        box-shadow: none;
+        box-shadow: none !important;
         line-height: 0;
+        transform-origin: center;
+        animation: heroButtonScalePulse 1.9s ease-in-out infinite;
+        will-change: transform;
+      }
+
+      .hero__cta--image:hover,
+      .hero__cta--image:focus-visible {
+        box-shadow: none !important;
       }
 
       .hero__cta--image img {
         display: block;
         width: 100%;
         height: auto;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .hero__cta--image {
+          animation: none;
+        }
       }
 
       @media (max-width: 960px) {
