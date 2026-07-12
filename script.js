@@ -1,7 +1,7 @@
 (() => {
   const PARTICLE_COUNT = 10000;
   const SHAPE_COUNT = 6;
-  const SEGMENT_DURATION = 10800;
+  const SEGMENT_DURATION = 8600;
   const BRAND_COLORS = [
     { r: 17 / 255, g: 50 / 255, b: 91 / 255 },
     { r: 179 / 255, g: 138 / 255, b: 73 / 255 }
@@ -86,22 +86,22 @@
       organicPoint = clamp(organicPoint, vec2(-1.08), vec2(1.08));
 
       float breathX = 1.0 + motion * (
-        sin(time * 0.43 + 0.35) * 0.028 +
-        sin(time * 0.19 + 1.8) * 0.012
+        sin(time * 0.54 + 0.35) * 0.028 +
+        sin(time * 0.24 + 1.8) * 0.012
       );
       float breathY = 1.0 + motion * (
-        cos(time * 0.37 + 0.8) * 0.032 +
-        sin(time * 0.23 + 2.4) * 0.01
+        cos(time * 0.47 + 0.8) * 0.032 +
+        sin(time * 0.29 + 2.4) * 0.01
       );
       organicPoint *= vec2(breathX, breathY);
 
       float bodyRotation = motion * (
-        sin(time * 0.15) * 0.045 +
-        sin(time * 0.071 + 1.2) * 0.022
+        sin(time * 0.19) * 0.045 +
+        sin(time * 0.089 + 1.2) * 0.022
       );
       organicPoint = rotate2d(bodyRotation) * organicPoint;
 
-      vec2 flowCoordinate = organicPoint * 1.65 + vec2(time * 0.055, -time * 0.043);
+      vec2 flowCoordinate = organicPoint * 1.65 + vec2(time * 0.069, -time * 0.054);
       float epsilon = 0.075;
       float leftNoise = valueNoise(flowCoordinate - vec2(epsilon, 0.0));
       float rightNoise = valueNoise(flowCoordinate + vec2(epsilon, 0.0));
@@ -114,8 +114,8 @@
       float flowStrength = (0.028 + depth * 0.026) * motion;
       organicPoint += curl * flowStrength;
       organicPoint += vec2(
-        sin(organicPoint.y * 3.1 + time * 0.31 + phase) * 0.014,
-        cos(organicPoint.x * 2.7 - time * 0.27 + phase * 0.73) * 0.012
+        sin(organicPoint.y * 3.1 + time * 0.39 + phase) * 0.014,
+        cos(organicPoint.x * 2.7 - time * 0.34 + phase * 0.73) * 0.012
       ) * motion;
 
       vec2 position = uCloudCenter + organicPoint * uCloudScale;
@@ -142,9 +142,9 @@
         20.0 + uPointerEnergy * 54.0
       ) * pointerInfluence;
 
-      float breathingPulse = 0.5 + 0.5 * sin(time * 0.76 + seed * 0.021);
+      float breathingPulse = 0.5 + 0.5 * sin(time * 0.95 + seed * 0.021);
       float densityWave = 0.5 + 0.5 * sin(
-        organicPoint.x * 4.2 - organicPoint.y * 3.4 + time * 0.62 + phase
+        organicPoint.x * 4.2 - organicPoint.y * 3.4 + time * 0.78 + phase
       );
       vec2 clip = (position / uResolution) * 2.0 - 1.0;
       gl_Position = vec4(clip.x, -clip.y, 0.0, 1.0);
