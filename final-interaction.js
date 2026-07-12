@@ -4,6 +4,7 @@
   const token = document.querySelector(".opportunity-token");
   const modal = document.querySelector(".opportunity-modal");
   const modalClose = document.querySelector(".opportunity-modal__close");
+  const assessmentCta = document.querySelector(".assessment-cta");
   const successModal = document.querySelector(".success-modal");
   const successModalOk = document.querySelector(".success-modal__ok");
   const form = document.querySelector(".govcon-form");
@@ -420,6 +421,7 @@
   resize();
   window.addEventListener("resize", resize, { passive: true });
   modalClose?.addEventListener("click", closeModal);
+  assessmentCta?.addEventListener("click", openModal);
   modal?.addEventListener("click", (event) => {
     if (event.target === modal) {
       closeModal();
