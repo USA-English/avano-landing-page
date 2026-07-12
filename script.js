@@ -84,6 +84,8 @@
         morph
       );
       organicPoint = clamp(organicPoint, vec2(-1.08), vec2(1.08));
+      float centralCohesion = 1.0 - smoothstep(0.06, 0.32, abs(organicPoint.x));
+      organicPoint.x *= 1.0 - centralCohesion * 0.18;
 
       float breathX = 1.0 + motion * (
         sin(time * 0.54 + 0.35) * 0.028 +
@@ -308,7 +310,6 @@
   function deformPoint(shapeIndex, spec) {
     const x = spec.x;
     const y = spec.y;
-    const side = x < 0 ? -1 : 1;
     let nextX = x;
     let nextY = y;
     let rotated;
@@ -329,8 +330,8 @@
         nextY = y * 0.87;
         const lowerNotch = gaussian(x, y, -0.02, 0.58, 0.34, 0.31);
         const leftShoulder = gaussian(x, y, -0.62, 0.04, 0.38, 0.45);
-        nextX += side * lowerNotch * 0.24 - leftShoulder * 0.15;
-        nextY -= lowerNotch * 0.2 - leftShoulder * 0.04;
+        nextX += lowerNotch * 0.07 - leftShoulder * 0.15;
+        nextY -= lowerNotch * 0.12 - leftShoulder * 0.04;
         rotated = rotatePoint(nextX, nextY, -0.13);
         return rotated;
       }
@@ -340,8 +341,8 @@
         nextY = y * 0.76 + Math.sin(x * 2.7) * 0.1;
         const upperFold = gaussian(x, y, -0.5, -0.35, 0.32, 0.34);
         const waist = gaussian(x, y, 0.02, 0.08, 0.34, 0.42);
-        nextX += upperFold * 0.22 - side * waist * 0.11;
-        nextY += upperFold * 0.08 + waist * 0.06;
+        nextX += upperFold * 0.22 + waist * 0.035;
+        nextY += upperFold * 0.08 + waist * 0.035;
         rotated = rotatePoint(nextX, nextY, 0.16);
         return rotated;
       }
@@ -360,11 +361,11 @@
       case 4: {
         nextX = x * 0.84;
         nextY = y * 0.72;
-        const centerNotch = gaussian(x, y, 0, -0.55, 0.28, 0.35);
+        const centerBridge = gaussian(x, y, 0, -0.42, 0.34, 0.42);
         const horns = gaussian(Math.abs(x), y, 0.58, -0.42, 0.25, 0.42);
         const lowerBody = gaussian(x, y, 0, 0.62, 0.7, 0.3);
-        nextX += side * centerNotch * 0.21;
-        nextY += centerNotch * 0.55 - horns * 0.18 + lowerBody * 0.09;
+        nextX *= 1.0 - centerBridge * 0.08;
+        nextY += centerBridge * 0.08 - horns * 0.14 + lowerBody * 0.09;
         return { x: nextX, y: nextY };
       }
 
