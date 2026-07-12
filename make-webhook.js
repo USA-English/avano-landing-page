@@ -29,12 +29,10 @@
         display: grid;
         grid-template-columns: minmax(17rem, 0.72fr) minmax(0, 1fr);
         align-items: center;
-        gap: clamp(2rem, 4vw, 5rem);
+        gap: clamp(1.25rem, 2.4vw, 2.5rem);
       }
 
       .expert-section__title {
-        grid-column: 1 / -1;
-        width: 100%;
         max-width: none !important;
         margin: 0;
         text-align: center;
@@ -63,6 +61,7 @@
         text-align: center;
       }
 
+      .expert-section__copy .copy-section__title,
       .expert-section__copy .copy-section__subtitle,
       .expert-section__copy .copy-section__body {
         margin-left: auto;
@@ -218,9 +217,6 @@
     section.style.backgroundImage = "none";
     section.innerHTML = `
       <div class="copy-section__inner expert-section__inner">
-        <h1 class="copy-section__title expert-section__title">
-          From the White House to Federal Contracting
-        </h1>
         <figure class="expert-section__visual">
           <img
             src="./uploads/eric-headshot.webp"
@@ -238,6 +234,9 @@
           </div>
         </figure>
         <div class="expert-section__copy">
+          <h1 class="copy-section__title expert-section__title">
+            From the White House to Federal Contracting
+          </h1>
           <p class="copy-section__subtitle">
             Meet Eric Craig, Founder and Federal Contracting Advisor
           </p>
