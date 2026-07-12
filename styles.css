@@ -181,35 +181,7 @@ a {
 }
 
 .custom-cursor {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 100;
-  width: 18px;
-  height: 18px;
-  background: url("./uploads/mouse-icon.svg") center / contain no-repeat;
-  opacity: 0;
-  pointer-events: none;
-  transform: translate3d(-50%, -50%, 0);
-  transition: opacity 160ms ease;
-  will-change: transform;
-}
-
-.custom-cursor.is-visible {
-  opacity: 1;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  body,
-  body * {
-    cursor: none;
-  }
-}
-
-@media (hover: none), (pointer: coarse) {
-  .custom-cursor {
-    display: none;
-  }
+  display: none !important;
 }
 
 .hero__frame {
