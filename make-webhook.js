@@ -123,7 +123,8 @@
         background: transparent !important;
         box-shadow: none !important;
         filter: none !important;
-        mix-blend-mode: multiply;
+        mix-blend-mode: normal;
+        clip-path: inset(20% 5% 15% 5%);
       }
 
       @media (prefers-reduced-motion: reduce) {
