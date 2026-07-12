@@ -20,6 +20,7 @@
     uniform vec2 uResolution;
     uniform vec2 uCloudCenter;
     uniform vec2 uPointer;
+    uniform vec2 uPointerVelocity;
     uniform float uCloudScale;
     uniform float uMorph;
     uniform float uTime;
@@ -127,22 +128,34 @@
         ? pointerDelta / pointerDistance
         : vec2(0.0);
       vec2 pointerTangent = vec2(-pointerDirection.y, pointerDirection.x);
-      float pointerCoreRadius = clamp(uCloudScale * 0.2, 58.0, 112.0);
-      float pointerFieldRadius = clamp(uCloudScale * 0.66, 170.0, 330.0);
+      float pointerCoreRadius = clamp(uCloudScale * 0.18, 54.0, 102.0);
+      float pointerFieldRadius = clamp(uCloudScale * 0.7, 180.0, 340.0);
       float pointerCore = 1.0 - smoothstep(0.0, pointerCoreRadius, pointerDistance);
-      float pointerField = 1.0 - smoothstep(pointerCoreRadius * 0.35, pointerFieldRadius, pointerDistance);
+      float pointerField = 1.0 - smoothstep(pointerCoreRadius * 0.25, pointerFieldRadius, pointerDistance);
+      float fluidField = pointerField * pointerField * (3.0 - 2.0 * pointerField);
       float pointerRing =
-        smoothstep(pointerCoreRadius * 0.4, pointerCoreRadius, pointerDistance) *
+        smoothstep(pointerCoreRadius * 0.42, pointerCoreRadius * 1.05, pointerDistance) *
         (1.0 - smoothstep(pointerCoreRadius, pointerFieldRadius, pointerDistance));
-      float pointerInfluence = uPointerPresence * motion * (0.72 + depth * 0.58);
+      float pointerSpeed = clamp(length(uPointerVelocity) / 48.0, 0.0, 1.0);
+      vec2 velocityDirection = pointerSpeed > 0.01
+        ? normalize(uPointerVelocity)
+        : vec2(0.0);
+      float movementAxis = dot(pointerDelta, velocityDirection);
+      float wake = pointerSpeed * fluidField *
+        (1.0 - smoothstep(-pointerFieldRadius * 0.08, pointerFieldRadius * 0.7, movementAxis));
+      float eddy = sin(
+        pointerDistance / max(pointerCoreRadius, 1.0) * 2.7 -
+        time * 1.35 +
+        depth * 2.2
+      );
+      float pointerInfluence = uPointerPresence * motion * (0.68 + depth * 0.5);
+      float pressure = pointerCore * 34.0 + fluidField * 17.0 + eddy * fluidField * 3.5;
+      float vortex = pointerRing * (9.0 + uPointerEnergy * 22.0);
 
-      position += pointerDirection * (
-        pointerCore * 62.0 +
-        pointerField * 28.0
-      ) * pointerInfluence;
-      position += pointerTangent * pointerRing * (
-        20.0 + uPointerEnergy * 54.0
-      ) * pointerInfluence;
+      position += pointerDirection * pressure * pointerInfluence;
+      position += pointerTangent * (vortex + eddy * fluidField * 3.5) * pointerInfluence;
+      position += uPointerVelocity * wake * 0.22 * uPointerPresence * motion *
+        (0.58 + depth * 0.32);
 
       float breathingPulse = 0.5 + 0.5 * sin(time * 0.95 + seed * 0.021);
       float densityWave = 0.5 + 0.5 * sin(
@@ -263,8 +276,12 @@
   const pointer = {
     x: -10000,
     y: -10000,
+    targetX: -10000,
+    targetY: -10000,
     previousX: -10000,
     previousY: -10000,
+    velocityX: 0,
+    velocityY: 0,
     active: false,
     presence: 0,
     energy: 0
@@ -541,6 +558,7 @@
       resolution: gl.getUniformLocation(program, "uResolution"),
       cloudCenter: gl.getUniformLocation(program, "uCloudCenter"),
       pointer: gl.getUniformLocation(program, "uPointer"),
+      pointerVelocity: gl.getUniformLocation(program, "uPointerVelocity"),
       cloudScale: gl.getUniformLocation(program, "uCloudScale"),
       morph: gl.getUniformLocation(program, "uMorph"),
       time: gl.getUniformLocation(program, "uTime"),
@@ -611,8 +629,20 @@
       return;
     }
 
-    pointer.presence += ((pointer.active ? 1 : 0) - pointer.presence) * 0.1;
+    pointer.presence += ((pointer.active ? 1 : 0) - pointer.presence) * 0.085;
     pointer.energy *= 0.91;
+    pointer.velocityX *= pointer.active ? 0.94 : 0.84;
+    pointer.velocityY *= pointer.active ? 0.94 : 0.84;
+
+    if (pointer.targetX > -9000) {
+      if (pointer.x < -9000) {
+        pointer.x = pointer.targetX;
+        pointer.y = pointer.targetY;
+      } else {
+        pointer.x += (pointer.targetX - pointer.x) * 0.19;
+        pointer.y += (pointer.targetY - pointer.y) * 0.19;
+      }
+    }
 
     if (!reducedMotion) {
       let elapsed = now - segmentStart;
@@ -636,6 +666,7 @@
     gl.uniform2f(uniforms.resolution, width, height);
     gl.uniform2f(uniforms.cloudCenter, cloudCenterX, cloudCenterY);
     gl.uniform2f(uniforms.pointer, pointer.x, pointer.y);
+    gl.uniform2f(uniforms.pointerVelocity, pointer.velocityX, pointer.velocityY);
     gl.uniform1f(uniforms.cloudScale, cloudScale);
     gl.uniform1f(uniforms.morph, lastMorph);
     gl.uniform1f(uniforms.time, now);
@@ -654,17 +685,21 @@
     const rect = canvas.getBoundingClientRect();
     const nextX = event.clientX - rect.left;
     const nextY = event.clientY - rect.top;
-    const hasPointer = pointer.x > -9000;
-    const speed = hasPointer
-      ? Math.hypot(nextX - pointer.previousX, nextY - pointer.previousY)
-      : 0;
+    const hasPointer = pointer.targetX > -9000;
+    const previousX = hasPointer ? pointer.targetX : nextX;
+    const previousY = hasPointer ? pointer.targetY : nextY;
+    const deltaX = nextX - previousX;
+    const deltaY = nextY - previousY;
+    const speed = Math.hypot(deltaX, deltaY);
 
-    pointer.previousX = hasPointer ? pointer.x : nextX;
-    pointer.previousY = hasPointer ? pointer.y : nextY;
-    pointer.x = nextX;
-    pointer.y = nextY;
+    pointer.previousX = previousX;
+    pointer.previousY = previousY;
+    pointer.targetX = nextX;
+    pointer.targetY = nextY;
+    pointer.velocityX = clamp(pointer.velocityX * 0.68 + deltaX * 0.32, -48, 48);
+    pointer.velocityY = clamp(pointer.velocityY * 0.68 + deltaY * 0.32, -48, 48);
     pointer.active = true;
-    pointer.energy = Math.max(pointer.energy, clamp(speed / 72, 0, 1));
+    pointer.energy = Math.max(pointer.energy, clamp(speed / 62, 0, 1));
   }
 
   function activatePointer(event) {
