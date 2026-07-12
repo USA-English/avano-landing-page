@@ -85,6 +85,22 @@
         object-fit: contain;
       }
 
+      .hero__cta--image {
+        width: min(100%, 18rem);
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+        line-height: 0;
+      }
+
+      .hero__cta--image img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+
       @media (max-width: 960px) {
         .expert-section__inner {
           grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr);
@@ -118,9 +134,30 @@
           width: min(100%, 22rem);
           margin: 0 auto;
         }
+
+        .hero__cta--image {
+          width: min(100%, 16rem);
+        }
       }
     `;
     document.head.appendChild(style);
+  }
+
+  function replaceHeroButton() {
+    const heroCta = document.querySelector(".hero__cta");
+
+    if (!heroCta || heroCta.classList.contains("hero__cta--image")) {
+      return;
+    }
+
+    heroCta.classList.add("hero__cta--image");
+    heroCta.setAttribute("aria-label", "Learn how");
+    heroCta.innerHTML = `
+      <img
+        src="./uploads/learn-how-button.webp"
+        alt="Learn how"
+      />
+    `;
   }
 
   function preserveMazeBackground() {
@@ -259,6 +296,7 @@
   }
 
   injectExpertSectionStyles();
+  replaceHeroButton();
   insertExpertSection();
   removeUnusedFields();
   relaxWebsiteValidation();
