@@ -36,7 +36,12 @@
         max-width: none !important;
         margin: 0;
         text-align: center;
-        white-space: nowrap;
+        white-space: normal;
+        line-height: 0.92;
+      }
+
+      .expert-section__title-line {
+        display: block;
       }
 
       .expert-section__visual,
@@ -242,7 +247,8 @@
         </figure>
         <div class="expert-section__copy">
           <h1 class="copy-section__title expert-section__title">
-            From the White House to Federal Contracting
+            <span class="expert-section__title-line">From the White House</span>
+            <span class="expert-section__title-line">to Federal Contracting</span>
           </h1>
           <p class="copy-section__subtitle">
             Meet Eric Craig, Founder and Federal Contracting Advisor
