@@ -85,16 +85,6 @@
         object-fit: contain;
       }
 
-      @keyframes heroButtonScalePulse {
-        0%, 100% {
-          transform: scale(1);
-        }
-
-        50% {
-          transform: scale(1.045);
-        }
-      }
-
       .hero__cta--image,
       .hero__cta--image:hover,
       .hero__cta--image:focus,
@@ -111,9 +101,17 @@
         filter: none !important;
         color: inherit !important;
         line-height: 0;
-        transform-origin: center;
-        animation: heroButtonScalePulse 1.9s ease-in-out infinite;
-        will-change: transform;
+        transform: none !important;
+        animation: none !important;
+      }
+
+      .hero__cta--image::before,
+      .hero__cta--image::after {
+        display: none !important;
+        content: none !important;
+        animation: none !important;
+        box-shadow: none !important;
+        filter: none !important;
       }
 
       .hero__cta--image img {
@@ -123,14 +121,7 @@
         background: transparent !important;
         box-shadow: none !important;
         filter: none !important;
-        mix-blend-mode: normal;
-        clip-path: inset(20% 5% 15% 5%);
-      }
-
-      @media (prefers-reduced-motion: reduce) {
-        .hero__cta--image {
-          animation: none;
-        }
+        clip-path: none !important;
       }
 
       @media (max-width: 960px) {
