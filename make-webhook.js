@@ -27,9 +27,17 @@
       .expert-section__inner {
         width: min(100%, 94rem);
         display: grid;
-        grid-template-columns: minmax(16rem, 0.72fr) minmax(0, 1fr) minmax(9rem, 0.36fr);
+        grid-template-columns: minmax(17rem, 0.72fr) minmax(0, 1fr);
         align-items: center;
-        gap: clamp(1.75rem, 3.6vw, 4.5rem);
+        gap: clamp(2rem, 4vw, 5rem);
+      }
+
+      .expert-section__title {
+        grid-column: 1 / -1;
+        width: 100%;
+        max-width: none !important;
+        margin: 0;
+        text-align: center;
       }
 
       .expert-section__visual,
@@ -37,7 +45,13 @@
         margin: 0;
       }
 
-      .expert-section__visual img {
+      .expert-section__visual {
+        display: grid;
+        justify-items: center;
+        gap: clamp(1.25rem, 2.4vw, 2rem);
+      }
+
+      .expert-section__visual > img {
         display: block;
         width: min(100%, 30rem);
         height: auto;
@@ -49,17 +63,10 @@
         text-align: center;
       }
 
-      .expert-section__copy .copy-section__title,
       .expert-section__copy .copy-section__subtitle,
       .expert-section__copy .copy-section__body {
         margin-left: auto;
         margin-right: auto;
-      }
-
-      .expert-section__copy .copy-section__title {
-        max-width: min(100%, 42rem);
-        white-space: normal;
-        text-align: center;
       }
 
       .expert-section__copy .copy-section__subtitle {
@@ -72,15 +79,14 @@
 
       .expert-section__seals {
         display: flex;
-        flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: clamp(1.5rem, 3vw, 2.75rem);
+        gap: clamp(1rem, 2.25vw, 1.75rem);
       }
 
       .expert-section__seals img {
         display: block;
-        width: min(100%, 10.5rem);
+        width: min(40%, 8.5rem);
         height: auto;
         object-fit: contain;
       }
@@ -126,16 +132,12 @@
 
       @media (max-width: 960px) {
         .expert-section__inner {
-          grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr);
-        }
-
-        .expert-section__seals {
-          grid-column: 1 / -1;
-          flex-direction: row;
+          grid-template-columns: minmax(14rem, 0.7fr) minmax(0, 1fr);
+          gap: 2rem;
         }
 
         .expert-section__seals img {
-          width: min(38vw, 9rem);
+          width: min(42%, 7.5rem);
         }
       }
 
@@ -145,17 +147,16 @@
           gap: 2rem;
         }
 
-        .expert-section__visual {
-          order: -2;
+        .expert-section__title {
+          font-size: clamp(2.35rem, 12vw, 4.25rem);
         }
 
-        .expert-section__seals {
-          order: -1;
-        }
-
-        .expert-section__visual img {
+        .expert-section__visual > img {
           width: min(100%, 22rem);
-          margin: 0 auto;
+        }
+
+        .expert-section__seals img {
+          width: min(38vw, 8rem);
         }
 
         .hero__cta--image,
@@ -217,16 +218,26 @@
     section.style.backgroundImage = "none";
     section.innerHTML = `
       <div class="copy-section__inner expert-section__inner">
+        <h1 class="copy-section__title expert-section__title">
+          From the White House to Federal Contracting
+        </h1>
         <figure class="expert-section__visual">
           <img
             src="./uploads/eric-headshot.webp"
             alt="Eric Craig, Founder and Federal Contracting Advisor"
           />
+          <div class="expert-section__seals" aria-label="Eric Craig credentials">
+            <img
+              src="./uploads/us-army-seal.webp"
+              alt="United States Army seal"
+            />
+            <img
+              src="./uploads/wh-comms-seal.webp"
+              alt="White House Communications Agency seal"
+            />
+          </div>
         </figure>
         <div class="expert-section__copy">
-          <h1 class="copy-section__title">
-            From the White House to Federal Contracting
-          </h1>
           <p class="copy-section__subtitle">
             Meet Eric Craig, Founder and Federal Contracting Advisor
           </p>
@@ -236,16 +247,6 @@
             </p>
           </div>
         </div>
-        <figure class="expert-section__seals" aria-label="Eric Craig credentials">
-          <img
-            src="./uploads/us-army-seal.webp"
-            alt="United States Army seal"
-          />
-          <img
-            src="./uploads/wh-comms-seal.webp"
-            alt="White House Communications Agency seal"
-          />
-        </figure>
       </div>
     `;
 
