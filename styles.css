@@ -525,6 +525,26 @@ p {
   color: var(--gold);
 }
 
+.assessment-cta-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: clamp(0.6rem, 1.5vw, 1rem);
+}
+
+.assessment-cta {
+  display: inline-flex;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.assessment-cta img {
+  display: block;
+  width: min(100%, 18rem);
+  height: auto;
+}
+
 .copy-list {
   display: grid;
   gap: 0.65rem;
