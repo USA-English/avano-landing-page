@@ -8,6 +8,7 @@
   const successModal = document.querySelector(".success-modal");
   const successModalOk = document.querySelector(".success-modal__ok");
   const form = document.querySelector(".govcon-form");
+  const submitButton = form?.querySelector(".form-submit");
   const formStatus = document.querySelector(".form-status");
   const firstNameInput = form?.elements?.firstName;
   const emailInput = form?.elements?.businessEmail;
@@ -58,6 +59,8 @@
 
     modal.hidden = false;
     document.body.classList.add("modal-open");
+    requestAnimationFrame(updateSubmitButton);
+    window.setTimeout(updateSubmitButton, 120);
     firstNameInput?.focus();
   }
 
@@ -144,6 +147,14 @@
     const validEmail = validateEmail();
     const validPhone = validatePhone();
     return validEmail && validPhone && Boolean(form?.checkValidity());
+  }
+
+  function updateSubmitButton() {
+    if (!submitButton) {
+      return;
+    }
+
+    submitButton.disabled = !validateForm();
   }
 
   function handleFormSubmit(event) {
@@ -433,6 +444,9 @@
       closeSuccessModal();
     }
   });
+  form?.addEventListener("input", updateSubmitButton);
+  form?.addEventListener("change", updateSubmitButton);
+  form?.addEventListener("form:requirements-changed", updateSubmitButton);
   form?.addEventListener("submit", handleFormSubmit);
   firstNameInput?.addEventListener("input", () => {
     updateFormStatus("");
@@ -462,5 +476,6 @@
     pointer.active = false;
   }, { passive: true });
   token.addEventListener("pointerdown", beginDrag);
+  updateSubmitButton();
   requestAnimationFrame(render);
 })();
