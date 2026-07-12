@@ -3,7 +3,25 @@
   const form = document.querySelector(".govcon-form");
   const submitButton = form?.querySelector(".form-submit");
   const removedFieldNames = ["helpNeeded", "timeline"];
+  const requiredFieldNames = [
+    "firstName",
+    "lastName",
+    "businessEmail",
+    "phone",
+    "companyName",
+    "state",
+    "annualRevenue",
+    "companyOffer",
+    "samRegistered",
+    "previousBid"
+  ];
+  const payloadFieldNames = [
+    ...requiredFieldNames,
+    "companyWebsite",
+    "additionalNotes"
+  ];
   let submitClickArmed = false;
+  let submitClickAt = 0;
   let lastPayloadSignature = "";
   let lastSentAt = 0;
 
@@ -287,41 +305,54 @@
   }
 
   function buildPayload() {
-    const formData = new FormData(form);
     const payload = {};
 
-    for (const [key, value] of formData.entries()) {
-      if (removedFieldNames.includes(key)) {
-        continue;
-      }
-
-      payload[key] = typeof value === "string" ? value.trim() : "";
+    for (const fieldName of payloadFieldNames) {
+      const field = form.elements[fieldName];
+      payload[fieldName] = typeof field?.value === "string"
+        ? field.value.trim()
+        : "";
     }
 
     return payload;
   }
 
-  function hasMeaningfulPayload(payload) {
-    return Object.values(payload).some((value) => value.length > 0);
+  function hasCompletePayload(payload) {
+    const hasRequiredValues = requiredFieldNames.every(
+      (fieldName) => payload[fieldName].length > 0
+    );
+    const hasValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(payload.businessEmail);
+    const hasValidPhone = payload.phone.replace(/\D/g, "").length === 10;
+
+    return hasRequiredValues && hasValidEmail && hasValidPhone;
   }
 
-  function sendToMake() {
+  function resetSubmitAuthorization() {
+    submitClickArmed = false;
+    submitClickAt = 0;
+  }
+
+  function sendToMake(event) {
     const payload = buildPayload();
     const payloadSignature = JSON.stringify(payload);
     const now = Date.now();
+    const isFreshHumanClick = submitClickArmed && now - submitClickAt <= 1200;
+    const isTrustedSubmitFromButton =
+      event?.isTrusted === true && event.submitter === submitButton;
 
     if (
       !MAKE_WEBHOOK_URL ||
-      !submitClickArmed ||
+      !isFreshHumanClick ||
+      !isTrustedSubmitFromButton ||
       !form.checkValidity() ||
-      !hasMeaningfulPayload(payload) ||
+      !hasCompletePayload(payload) ||
       (payloadSignature === lastPayloadSignature && now - lastSentAt < 8000)
     ) {
-      submitClickArmed = false;
+      resetSubmitAuthorization();
       return;
     }
 
-    submitClickArmed = false;
+    resetSubmitAuthorization();
     lastPayloadSignature = payloadSignature;
     lastSentAt = now;
 
@@ -340,10 +371,20 @@
   insertExpertSection();
   removeUnusedFields();
   relaxWebsiteValidation();
+  form.dispatchEvent(new Event("form:requirements-changed"));
 
   submitButton.addEventListener("click", (event) => {
-    submitClickArmed = event.isTrusted === true;
+    if (!event.isTrusted) {
+      resetSubmitAuthorization();
+      return;
+    }
+
+    submitClickArmed = true;
+    submitClickAt = Date.now();
   });
 
+  form.addEventListener("input", resetSubmitAuthorization);
+  form.addEventListener("change", resetSubmitAuthorization);
+  form.addEventListener("reset", resetSubmitAuthorization);
   form.addEventListener("submit", sendToMake);
 })();
