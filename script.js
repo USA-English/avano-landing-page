@@ -283,6 +283,7 @@
           const y = centerY + Math.sin(theta) * radius * scale * 1.12 +
             Math.cos(theta * 3.0 + time * 0.62 + dot.phase) * scale * 0.09;
 
+          context.moveTo(x + dot.size, y);
           context.arc(x, y, dot.size, 0, Math.PI * 2);
         }
 
