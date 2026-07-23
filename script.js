@@ -202,9 +202,101 @@
   `;
 
   const canvas = document.getElementById("avano-field");
+  const mobileCanvas = document.getElementById("avano-mobile-field");
   const customCursor = document.querySelector(".custom-cursor");
   const hasFinePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const usesMobileCloud = window.matchMedia("(max-width: 599px)").matches;
+
+  function startMobileCloud() {
+    const context = mobileCanvas?.getContext("2d");
+
+    if (!context) {
+      return false;
+    }
+
+    const dots = Array.from({ length: 1000 }, (_, index) => {
+      const seed = (Math.sin(index * 78.233) * 43758.5453) % 1;
+      const random = Math.abs(seed);
+      const angle = (random * 928.21 % 1) * Math.PI * 2;
+      const radius = Math.sqrt((random * 481.17) % 1);
+      return {
+        angle,
+        radius,
+        phase: (random * 1187.39 % 1) * Math.PI * 2,
+        size: 0.48 + (random * 73.11 % 1) * 1.05,
+        gold: (random * 193.47 % 1) > 0.52
+      };
+    });
+    let frame = 0;
+    let lastDraw = 0;
+    let width = 1;
+    let height = 1;
+    let dpr = 1;
+
+    function resizeMobileCloud() {
+      const rect = mobileCanvas.getBoundingClientRect();
+      width = Math.max(1, rect.width);
+      height = Math.max(1, rect.height);
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      mobileCanvas.width = Math.round(width * dpr);
+      mobileCanvas.height = Math.round(height * dpr);
+      context.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function drawMobileCloud(now) {
+      if (!reducedMotion && now - lastDraw < 32) {
+        frame = requestAnimationFrame(drawMobileCloud);
+        return;
+      }
+
+      lastDraw = now;
+      const time = now * 0.001;
+      const centerX = width * 0.5;
+      const centerY = height * 0.5;
+      const scale = Math.min(width * 0.42, height * 0.46);
+
+      context.clearRect(0, 0, width, height);
+
+      for (const dot of dots) {
+        const theta = dot.angle +
+          Math.sin(time * 0.46 + dot.phase) * 0.11 +
+          Math.sin(time * 0.18 + dot.phase * 2.1) * 0.045;
+        const contour = 0.82 +
+          Math.sin(theta * 3.0 + time * 0.58) * 0.14 +
+          Math.cos(theta * 5.0 - time * 0.41 + dot.phase) * 0.08 +
+          Math.sin(theta * 2.0 + time * 0.27) * 0.05;
+        const radius = dot.radius * contour;
+        const x = centerX + Math.cos(theta) * radius * scale * 1.72 +
+          Math.sin(theta * 2.0 - time * 0.75 + dot.phase) * scale * 0.1;
+        const y = centerY + Math.sin(theta) * radius * scale * 1.12 +
+          Math.cos(theta * 3.0 + time * 0.62 + dot.phase) * scale * 0.09;
+        const pulse = 0.72 + Math.sin(time * 1.15 + dot.phase) * 0.16;
+
+        context.globalAlpha = pulse;
+        context.fillStyle = dot.gold ? "#b38a49" : "#11325b";
+        context.beginPath();
+        context.arc(x, y, dot.size, 0, Math.PI * 2);
+        context.fill();
+      }
+
+      context.globalAlpha = 1;
+
+      if (!reducedMotion) {
+        frame = requestAnimationFrame(drawMobileCloud);
+      }
+    }
+
+    resizeMobileCloud();
+    window.addEventListener("resize", resizeMobileCloud, { passive: true });
+    frame = requestAnimationFrame(drawMobileCloud);
+    window.addEventListener("pagehide", () => cancelAnimationFrame(frame), { once: true });
+    return true;
+  }
+
+  if (usesMobileCloud && startMobileCloud()) {
+    return;
+  }
 
   if (!canvas) {
     return;
