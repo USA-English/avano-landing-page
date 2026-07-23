@@ -202,12 +202,19 @@
     }
   `;
 
-  const canvas = document.getElementById("avano-field");
-  const mobileCanvas = document.getElementById("avano-mobile-field");
-  const customCursor = document.querySelector(".custom-cursor");
-  const hasFinePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const usesMobileCloud = window.matchMedia("(max-width: 720px)").matches;
+  const CLOUD_EPOCH = performance.now();
+  let desktopReferenceScale = 1;
+
+  function startOrganicCloud({
+    canvas,
+    mobileCanvas = canvas,
+    layout = "hero",
+    pointerElement = canvas
+  }) {
+    const customCursor = document.querySelector(".custom-cursor");
+    const hasFinePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const usesMobileCloud = window.matchMedia("(max-width: 720px)").matches;
 
   function startMobileCloud() {
     const context = mobileCanvas?.getContext("2d");
@@ -373,7 +380,7 @@
   let colorBuffer = null;
   let metaBuffer = null;
   let uniforms = null;
-  let segmentStart = performance.now();
+  let segmentStart = CLOUD_EPOCH;
   let lastMorph = 0;
   let animationFrame = 0;
 
@@ -675,37 +682,48 @@
 
   function updateCloudLayout() {
     const canvasRect = canvas.getBoundingClientRect();
-    const heroCopy = document.querySelector(".hero__copy");
-    const copyRect = heroCopy?.getBoundingClientRect();
-    const mobileCloudSlot = document.querySelector(".hero__cloud-slot");
-    const mobileCloudSlotRect = mobileCloudSlot?.getBoundingClientRect();
     width = Math.max(1, canvasRect.width || window.innerWidth);
     height = Math.max(1, canvasRect.height || window.innerHeight);
 
-    if (width >= 900) {
-      const copyRight = copyRect ? copyRect.right - canvasRect.left : width * 0.5;
-      const safeLeft = Math.max(width * 0.54, copyRight + 28);
-      const safeRight = width * 0.965;
-      const safeTop = height * 0.055;
-      const safeBottom = height * 0.945;
-      cloudCenterX = (safeLeft + safeRight) * 0.5;
-      cloudCenterY = (safeTop + safeBottom) * 0.5;
-      cloudScale = Math.max(120, Math.min(safeRight - safeLeft, safeBottom - safeTop) * 0.48);
-    } else if (width >= 600) {
-      cloudCenterX = width * 0.76;
-      cloudCenterY = height * 0.48;
-      cloudScale = Math.min(width * 0.25, height * 0.34);
-    } else {
-      if (mobileCloudSlotRect) {
-        cloudCenterX = mobileCloudSlotRect.left - canvasRect.left + mobileCloudSlotRect.width * 0.5;
-        cloudCenterY = mobileCloudSlotRect.top - canvasRect.top + mobileCloudSlotRect.height * 0.5;
-        cloudScale = Math.min(width * 0.18, mobileCloudSlotRect.height * 0.4);
+    if (layout === "hero") {
+      const heroCopy = document.querySelector(".hero__copy");
+      const copyRect = heroCopy?.getBoundingClientRect();
+
+      if (width >= 900) {
+        const copyRight = copyRect ? copyRect.right - canvasRect.left : width * 0.5;
+        const safeLeft = Math.max(width * 0.54, copyRight + 28);
+        const safeRight = width * 0.965;
+        const safeTop = height * 0.055;
+        const safeBottom = height * 0.945;
+        cloudCenterX = (safeLeft + safeRight) * 0.5;
+        cloudCenterY = (safeTop + safeBottom) * 0.5;
+        cloudScale = Math.max(
+          120,
+          Math.min(safeRight - safeLeft, safeBottom - safeTop) * 0.48
+        );
       } else {
-        cloudCenterX = width * 0.5;
-        cloudCenterY = height * 0.34;
-        cloudScale = Math.min(width * 0.18, height * 0.08);
+        cloudCenterX = width * 0.76;
+        cloudCenterY = height * 0.48;
+        cloudScale = Math.min(width * 0.25, height * 0.34);
       }
+
+      desktopReferenceScale = cloudScale;
+      return;
     }
+
+    const safeLeft = width * 0.035;
+    const safeRight = width * 0.965;
+    const safeTop = height * 0.055;
+    const safeBottom = height * 0.945;
+    cloudCenterX = (safeLeft + safeRight) * 0.5;
+    cloudCenterY = (safeTop + safeBottom) * 0.5;
+    cloudScale =
+      desktopReferenceScale > 1
+        ? desktopReferenceScale
+        : Math.max(
+            120,
+            Math.min(safeRight - safeLeft, safeBottom - safeTop) * 0.48
+          );
   }
 
   function resize() {
@@ -870,10 +888,11 @@
   }
 
   window.addEventListener("resize", resize, { passive: true });
-  canvas.addEventListener("pointerenter", activatePointer, { passive: true });
-  canvas.addEventListener("pointerleave", deactivatePointer, { passive: true });
-  canvas.addEventListener("pointermove", trackPointer, { passive: true });
-  canvas.addEventListener("pointerdown", trackPointer, { passive: true });
+  const interactionTarget = pointerElement || canvas;
+  interactionTarget.addEventListener("pointerenter", activatePointer, { passive: true });
+  interactionTarget.addEventListener("pointerleave", deactivatePointer, { passive: true });
+  interactionTarget.addEventListener("pointermove", trackPointer, { passive: true });
+  interactionTarget.addEventListener("pointerdown", trackPointer, { passive: true });
   document.addEventListener("visibilitychange", () => {
     if (!document.hidden && !reducedMotion) {
       segmentStart = performance.now() - lastMorph * SEGMENT_DURATION;
@@ -882,11 +901,34 @@
   window.addEventListener("pagehide", () => cancelAnimationFrame(animationFrame), { once: true });
 
   resize();
-  segmentStart = performance.now();
+  segmentStart = CLOUD_EPOCH;
   if (reducedMotion) {
     render(segmentStart, false);
   } else {
     animationFrame = requestAnimationFrame(render);
+  }
+  }
+
+  const heroCanvas = document.getElementById("avano-field");
+  const heroMobileCanvas = document.getElementById("avano-mobile-field");
+  if (heroCanvas || heroMobileCanvas) {
+    startOrganicCloud({
+      canvas: heroCanvas,
+      mobileCanvas: heroMobileCanvas,
+      layout: "hero",
+      pointerElement: heroCanvas
+    });
+  }
+
+  const finalCanvas = document.getElementById("final-field");
+  const finalSpace = document.querySelector(".final-particle-space");
+  if (finalCanvas && finalSpace) {
+    startOrganicCloud({
+      canvas: finalCanvas,
+      mobileCanvas: finalCanvas,
+      layout: "final",
+      pointerElement: finalSpace
+    });
   }
 })();
 
