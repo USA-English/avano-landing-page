@@ -234,7 +234,8 @@ a {
   letter-spacing: 0.08em;
 }
 
-.hero__cloud-slot {
+.hero__cloud-slot,
+#avano-mobile-field {
   display: none;
 }
 
@@ -1055,12 +1056,26 @@ body.modal-open {
     font-size: clamp(0.66rem, 2.8vw, 0.82rem);
   }
 
+  #avano-field {
+    display: none;
+  }
+
   .hero__cloud-slot {
+    position: relative;
     display: block;
     width: 100%;
     height: clamp(5.5rem, 15svh, 7.5rem);
     flex: 0 0 auto;
+    overflow: hidden;
     pointer-events: none;
+  }
+
+  #avano-mobile-field {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
   }
 
   .hero__bridge {
