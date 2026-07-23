@@ -206,7 +206,7 @@
   const customCursor = document.querySelector(".custom-cursor");
   const hasFinePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const usesMobileCloud = window.matchMedia("(max-width: 599px)").matches;
+  const usesMobileCloud = window.matchMedia("(max-width: 720px)").matches;
 
   function startMobileCloud() {
     const context = mobileCanvas?.getContext("2d");
