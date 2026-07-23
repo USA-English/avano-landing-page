@@ -573,6 +573,8 @@
     const canvasRect = canvas.getBoundingClientRect();
     const heroCopy = document.querySelector(".hero__copy");
     const copyRect = heroCopy?.getBoundingClientRect();
+    const mobileCloudSlot = document.querySelector(".hero__cloud-slot");
+    const mobileCloudSlotRect = mobileCloudSlot?.getBoundingClientRect();
     width = Math.max(1, canvasRect.width || window.innerWidth);
     height = Math.max(1, canvasRect.height || window.innerHeight);
 
@@ -590,9 +592,15 @@
       cloudCenterY = height * 0.48;
       cloudScale = Math.min(width * 0.25, height * 0.34);
     } else {
-      cloudCenterX = width * 0.79;
-      cloudCenterY = height * 0.47;
-      cloudScale = Math.min(width * 0.225, height * 0.28);
+      if (mobileCloudSlotRect) {
+        cloudCenterX = mobileCloudSlotRect.left - canvasRect.left + mobileCloudSlotRect.width * 0.5;
+        cloudCenterY = mobileCloudSlotRect.top - canvasRect.top + mobileCloudSlotRect.height * 0.5;
+        cloudScale = Math.min(width * 0.18, mobileCloudSlotRect.height * 0.4);
+      } else {
+        cloudCenterX = width * 0.5;
+        cloudCenterY = height * 0.34;
+        cloudScale = Math.min(width * 0.18, height * 0.08);
+      }
     }
   }
 
