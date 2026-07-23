@@ -194,6 +194,8 @@
         .hero__cta--image:focus-visible,
         .hero__cta--image:active {
           width: min(100%, 9rem);
+          min-width: 0 !important;
+          min-height: 0 !important;
         }
       }
     `;
