@@ -225,7 +225,7 @@
         angle,
         radius,
         phase: (random * 1187.39 % 1) * Math.PI * 2,
-        size: 0.48 + (random * 73.11 % 1) * 1.05,
+        size: 0.34 + (random * 73.11 % 1) * 0.72,
         gold: (random * 193.47 % 1) > 0.52
       };
     });
@@ -255,7 +255,7 @@
       const time = now * 0.001;
       const centerX = width * 0.5;
       const centerY = height * 0.5;
-      const scale = Math.min(width * 0.42, height * 0.46) * 1.5;
+      const scale = Math.min(width * 0.42, height * 0.46, 96) * 1.5;
 
       context.clearRect(0, 0, width, height);
       const cloudAlpha = 0.8 + Math.sin(time * 1.15) * 0.1;
