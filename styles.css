@@ -1064,7 +1064,7 @@ body.modal-open {
     position: relative;
     display: block;
     width: 100%;
-    height: clamp(6.5rem, 18svh, 8.5rem);
+    height: clamp(7rem, 20svh, 10rem);
     flex: 0 0 auto;
     overflow: hidden;
     pointer-events: none;
