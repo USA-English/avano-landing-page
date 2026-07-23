@@ -255,8 +255,8 @@
       const time = now * 0.001;
       const centerX = width * 0.5;
       const centerY = height * 0.5;
-      const horizontalScale = Math.max(1, (width - 40) / 4.0);
-      const verticalScale = Math.max(1, (height - 40) / 2.7);
+      const horizontalScale = Math.max(1, (width - 36) / 3.45);
+      const verticalScale = Math.max(1, (height - 32) / 2.2);
       const scale = Math.min(horizontalScale, verticalScale, 96);
 
       context.clearRect(0, 0, width, height);
