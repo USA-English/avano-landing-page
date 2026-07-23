@@ -254,7 +254,7 @@
       const time = now * 0.001;
       const centerX = width * 0.5;
       const centerY = height * 0.5;
-      const scale = Math.min(width * 0.42, height * 0.46);
+      const scale = Math.min(width * 0.42, height * 0.46) * 1.2;
 
       context.clearRect(0, 0, width, height);
 
