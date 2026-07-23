@@ -234,6 +234,10 @@ a {
   letter-spacing: 0.08em;
 }
 
+.hero__cloud-slot {
+  display: none;
+}
+
 .hero__headline {
   width: min(100%, 45rem);
   max-width: none;
@@ -1049,6 +1053,14 @@ body.modal-open {
 
   .hero__opening-subtitle {
     font-size: clamp(0.66rem, 2.8vw, 0.82rem);
+  }
+
+  .hero__cloud-slot {
+    display: block;
+    width: 100%;
+    height: clamp(5.5rem, 15svh, 7.5rem);
+    flex: 0 0 auto;
+    pointer-events: none;
   }
 
   .hero__bridge {
