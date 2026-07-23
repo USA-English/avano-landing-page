@@ -1,5 +1,6 @@
 (() => {
   const PARTICLE_COUNT = 10000;
+  const MOBILE_PARTICLE_COUNT = 10000;
   const SHAPE_COUNT = 6;
   const SEGMENT_DURATION = 8600;
   const BRAND_COLORS = [
@@ -215,7 +216,7 @@
       return false;
     }
 
-    const dots = Array.from({ length: 1000 }, (_, index) => {
+    const dots = Array.from({ length: MOBILE_PARTICLE_COUNT }, (_, index) => {
       const seed = (Math.sin(index * 78.233) * 43758.5453) % 1;
       const random = Math.abs(seed);
       const angle = (random * 928.21 % 1) * Math.PI * 2;
@@ -257,26 +258,34 @@
       const scale = Math.min(width * 0.42, height * 0.46) * 1.5;
 
       context.clearRect(0, 0, width, height);
+      const cloudAlpha = 0.8 + Math.sin(time * 1.15) * 0.1;
 
-      for (const dot of dots) {
-        const theta = dot.angle +
-          Math.sin(time * 0.46 + dot.phase) * 0.11 +
-          Math.sin(time * 0.18 + dot.phase * 2.1) * 0.045;
-        const contour = 0.82 +
-          Math.sin(theta * 3.0 + time * 0.58) * 0.14 +
-          Math.cos(theta * 5.0 - time * 0.41 + dot.phase) * 0.08 +
-          Math.sin(theta * 2.0 + time * 0.27) * 0.05;
-        const radius = dot.radius * contour;
-        const x = centerX + Math.cos(theta) * radius * scale * 1.72 +
-          Math.sin(theta * 2.0 - time * 0.75 + dot.phase) * scale * 0.1;
-        const y = centerY + Math.sin(theta) * radius * scale * 1.12 +
-          Math.cos(theta * 3.0 + time * 0.62 + dot.phase) * scale * 0.09;
-        const pulse = 0.72 + Math.sin(time * 1.15 + dot.phase) * 0.16;
-
-        context.globalAlpha = pulse;
-        context.fillStyle = dot.gold ? "#b38a49" : "#11325b";
+      for (const isGold of [false, true]) {
+        context.globalAlpha = cloudAlpha;
+        context.fillStyle = isGold ? "#b38a49" : "#11325b";
         context.beginPath();
-        context.arc(x, y, dot.size, 0, Math.PI * 2);
+
+        for (const dot of dots) {
+          if (dot.gold !== isGold) {
+            continue;
+          }
+
+          const theta = dot.angle +
+            Math.sin(time * 0.46 + dot.phase) * 0.11 +
+            Math.sin(time * 0.18 + dot.phase * 2.1) * 0.045;
+          const contour = 0.82 +
+            Math.sin(theta * 3.0 + time * 0.58) * 0.14 +
+            Math.cos(theta * 5.0 - time * 0.41 + dot.phase) * 0.08 +
+            Math.sin(theta * 2.0 + time * 0.27) * 0.05;
+          const radius = dot.radius * contour;
+          const x = centerX + Math.cos(theta) * radius * scale * 1.72 +
+            Math.sin(theta * 2.0 - time * 0.75 + dot.phase) * scale * 0.1;
+          const y = centerY + Math.sin(theta) * radius * scale * 1.12 +
+            Math.cos(theta * 3.0 + time * 0.62 + dot.phase) * scale * 0.09;
+
+          context.arc(x, y, dot.size, 0, Math.PI * 2);
+        }
+
         context.fill();
       }
 
