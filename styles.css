@@ -443,29 +443,25 @@ p {
 }
 
 .opportunity-layout {
-  display: grid;
-  width: min(100%, 92rem);
-  grid-template-columns: minmax(0, 58rem) minmax(18rem, 1fr);
-  align-items: center;
-  gap: clamp(2rem, 5vw, 6rem);
+  display: block;
+  width: min(100%, 68rem);
 }
 
 .opportunity-layout__copy {
+  width: 100%;
   min-width: 0;
 }
 
 .opportunity-layout__visual {
   display: grid;
-  width: 100%;
-  margin: 0;
-  align-self: end;
+  width: min(100%, 41.4rem);
+  margin: clamp(0.75rem, 1.8vw, 1.4rem) auto;
   place-items: center;
-  transform: translateY(calc(-1 * clamp(1.35rem, 3vw, 2.4rem)));
 }
 
 .opportunity-layout__visual img {
   display: block;
-  width: min(100%, 41.4rem);
+  width: 100%;
   height: auto;
   object-fit: contain;
 }
@@ -1130,12 +1126,7 @@ body.modal-open {
     margin-top: 1.6rem;
   }
 
-  .opportunity-layout {
-    grid-template-columns: 1fr;
-    gap: 2.25rem;
-  }
-
-  .opportunity-layout__visual img {
+  .opportunity-layout__visual {
     width: min(100%, 30.4rem);
   }
 
