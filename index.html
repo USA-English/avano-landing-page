@@ -57,9 +57,14 @@
         }
 
         main > .copy-section:nth-of-type(3) {
-          background-size: min(70vw, 20rem) auto;
-          background-position: right -1.5rem bottom -1.5rem;
-          background-repeat: no-repeat;
+          background-image: none;
+        }
+
+        .maze-mobile-art {
+          display: block;
+          width: min(72vw, 18rem);
+          height: auto;
+          margin: 1.25rem 0 0 auto;
         }
       }
     </style>
@@ -204,6 +209,12 @@
                 />
               </button>
             </div>
+            <img
+              class="maze-mobile-art"
+              src="./uploads/maze.bg-v2.webp"
+              alt=""
+              aria-hidden="true"
+            />
           </div>
         </div>
       </section>
