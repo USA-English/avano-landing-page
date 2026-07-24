@@ -580,7 +580,7 @@ p {
   .assessment-cta:focus,
   .assessment-cta:focus-visible,
   .assessment-cta:active {
-    width: min(100%, 16rem);
+    width: min(78vw, 16rem);
   }
 }
 
