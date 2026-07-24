@@ -589,6 +589,10 @@ p {
     width: 100% !important;
     max-width: 100% !important;
   }
+
+  .copy-section--maze .copy-list {
+    font-weight: 700;
+  }
 }
 
 .copy-list {
