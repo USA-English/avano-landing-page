@@ -575,12 +575,19 @@ p {
 }
 
 @media (max-width: 720px) {
-  .assessment-cta,
-  .assessment-cta:hover,
-  .assessment-cta:focus,
-  .assessment-cta:focus-visible,
-  .assessment-cta:active {
-    width: min(78vw, 16rem);
+  .copy-section--maze .assessment-cta,
+  .copy-section--maze .assessment-cta:hover,
+  .copy-section--maze .assessment-cta:focus,
+  .copy-section--maze .assessment-cta:focus-visible,
+  .copy-section--maze .assessment-cta:active {
+    width: min(12.8rem, calc(100vw - 2.5rem)) !important;
+    min-width: 0 !important;
+    flex: 0 0 auto;
+  }
+
+  .copy-section--maze .assessment-cta img {
+    width: 100% !important;
+    max-width: 100% !important;
   }
 }
 
