@@ -580,7 +580,7 @@ p {
   .copy-section--maze .assessment-cta:focus,
   .copy-section--maze .assessment-cta:focus-visible,
   .copy-section--maze .assessment-cta:active {
-    width: min(78vw, 16rem) !important;
+    width: min(9rem, calc(100vw - 2.5rem)) !important;
     min-width: 0 !important;
     flex: 0 0 auto;
   }
